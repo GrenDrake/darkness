@@ -65,6 +65,17 @@ void player_action(struct map_def *map, struct actor_def *player, int action) {
         case ACTION_STEP_NORTHEAST:
         case ACTION_STEP_SOUTHEAST:
             success = actor_action_step(map, player, action);
+            if (!success) {
+                int x = player->x;
+                int y = player->y;
+                shift_point(&x, &y, action);
+                struct actor_def *who = map_get_actor(map, x, y);
+                if (who) {
+                    message_format(map, "pow %s", who->my_class->name);
+                    player->tick += TICK_MOVE;
+                    success = 1;
+                }
+            }
             break;
     }
 

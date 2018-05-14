@@ -9,9 +9,17 @@ void draw_map(struct map_def *map, int cx, int cy);
 void player_action(struct map_def *map, struct actor_def *player, int action);
 void delve_loop(struct dungeon_def *dungeon);
 
+const int max_messages = 10;
+const int status_width = 40;
+static int max_x = 0;
+static int max_y = 0;
+
 void draw_map(struct map_def *map, int cx, int cy) {
-    for (int y = cy - 10, sy = 0; y < cy + 10; ++y, ++sy) {
-        for (int x = cx - 20, sx = 0; x < cx + 20; ++x, ++sx) {
+    int map_half_height = max_y / 2;
+    int map_half_width = (max_x - status_width)/ 2;
+
+    for (int y = cy - map_half_height, sy = 0; y < cy + map_half_height; ++y, ++sy) {
+        for (int x = cx - map_half_width, sx = 0; x < cx + map_half_width; ++x, ++sx) {
             if (!map_valid_coord(map, x, y))    continue;
             if (!map_was_seen(map, x, y))       continue;
 
@@ -36,7 +44,6 @@ void draw_map(struct map_def *map, int cx, int cy) {
 }
 
 void draw_log(struct map_def *map) {
-    const int max_messages = 10;
     struct message_def *msg = map->log;
     int count = 0;
 
@@ -44,7 +51,7 @@ void draw_log(struct map_def *map) {
         if (msg->turn_number == map->turn_number - 1) {
             attrset(A_BOLD | COLOR_PAIR(CP_GREEN));
         }
-        mvprintw(max_messages - count - 1, 41, "%s", msg->msg);
+        mvprintw(max_y - count - 1, max_x - status_width + 1, "%s", msg->msg);
         attrset(0);
 
         ++count;
@@ -115,31 +122,21 @@ void delve_loop(struct dungeon_def *dungeon) {
     ++map->turn_number;
 
     while (!wants_to_quit) {
+        getmaxyx(stdscr, max_y, max_x);
         clear();
 
-        for (int i = 0; i < 20; ++i) {
-            mvaddch(i, 40, ACS_CKBOARD);
+        for (int i = 0; i < max_y; ++i) {
+            mvaddch(i, max_x - status_width, ACS_CKBOARD);
         }
-        for (int i = 0; i < 80; ++i) {
-            mvaddch(20, i, ACS_CKBOARD);
+        for (int i = 0; i < max_x / 2; ++i) {
+            mvaddch(max_y - max_messages - 1, max_x - status_width + i, ACS_CKBOARD);
         }
-        for (int i = 0; i < 40; ++i) {
-            mvaddch(10, 40+i, ACS_CKBOARD);
-        }
-        draw_map(map, dungeon->player->x, dungeon->player->y);
-        draw_log(map);
-
-        for (int i = 0; i < 3; ++i) {
-            mvaddch(21, 18 + i * 20, '|');
-            mvaddch(22, 18 + i * 20, '|');
-        }
-        for (int i = 0; i < 4; ++i) {
-            mvprintw(21, 0 + i * 20, "%d) 100", i + 1);
-            mvprintw(22, 0 + i * 20, "Mighty Bash");
-        }
-        mvprintw(20, 41, " %s %s ",
+        mvprintw(max_y - max_messages - 1, max_x - status_width + 2, " %s %s ",
             size_names[dungeon->size],
             goal_names[dungeon->goal]);
+
+        draw_map(map, dungeon->player->x, dungeon->player->y);
+        draw_log(map);
         refresh();
 
         int key = getch();

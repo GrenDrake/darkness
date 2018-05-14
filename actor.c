@@ -11,10 +11,10 @@
 // STATS:  HP ACC DODG DAM_MIN DAM_MAX PROT SPD CRIT
 
 const struct class_def classes[] = {
-    { 0,   "soldier", '@', CP_GREEN, { 0 }, { 7, 75, 0, 2, 4, 0, 5, 10 }, "A warrior trained in the service of armies." },
-    { 1,   "medic",   '@', CP_GREEN, { 0 }, { 5, 50, 0, 2, 4, 0, 5, 10 }, "A battlefield medic, trained during the last war." },
-    { 100, "goblin",  'g', CP_RED,   { 0 }, { 3, 50, 10, 2, 4, 0, 5, 10 }, "A warrior trained in the service of armies." },
-    { 101, "orc",     'o', CP_RED,   { 0 }, { 3, 50, 0, 2, 4, 50, 5, 10 }, "A warrior trained in the service of armies." },
+    { 0,   "soldier", '@', CP_GREEN, { 0 }, { 100, 75, 5,  15, 25, 10, 5, 15 }, "A warrior trained in the service of armies." },
+    { 1,   "medic",   '@', CP_GREEN, { 0 }, { 90,  65, 10, 10, 15, 0,  5, 10 }, "A battlefield medic, trained during the last war." },
+    { 100, "goblin",  'g', CP_RED,   { 0 }, { 50,  55, 10, 8,  16, 0,  5, 5  }, "A short, malicious creature related to orcs." },
+    { 101, "orc",     'o', CP_RED,   { 0 }, { 70,  65, 5,  12, 20, 50, 5, 10 }, "A powerful, bestial warrior." },
     { -1, NULL },
 };
 

@@ -159,6 +159,7 @@ struct actor_def* actor_new(int class_ident);
 void actor_destroy(struct actor_def *actor);
 int actor_action_step(struct map_def *map, struct actor_def *actor, int direction);
 int actor_get_stat(const struct actor_def *actor, int stat_number);
+void actor_die(struct map_def *map, struct actor_def *actor);
 
 
 const struct tile_type* tile_get_info(int tt);

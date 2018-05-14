@@ -71,7 +71,7 @@ void player_action(struct map_def *map, struct actor_def *player, int action) {
                 shift_point(&x, &y, action);
                 struct actor_def *who = map_get_actor(map, x, y);
                 if (who) {
-                    message_format(map, "pow %s", who->my_class->name);
+                    actor_die(map, who);
                     player->tick += TICK_MOVE;
                     success = 1;
                 }

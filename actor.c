@@ -83,3 +83,9 @@ int actor_get_stat(const struct actor_def *actor, int stat_number) {
         return actor->my_class->base_stats[stat_number];
     }
 }
+
+void actor_die(struct map_def *map, struct actor_def *actor) {
+    map_set_actor(map, actor->x, actor->y, NULL);
+    message_format(map, "%s: dies.", actor->my_class->name);
+    actor_destroy(actor);
+}

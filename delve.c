@@ -111,11 +111,8 @@ void delve_loop(struct dungeon_def *dungeon) {
     map_set_actor(map, px, py, dungeon->player);
     dungeon->player->tick = 0;
     map_do_fov(map, dungeon->player->x, dungeon->player->y, 4);
-    message_format(map, "   mission with %s.", dungeon->player->name);
-    message_format(map, "Beginning %s %s",
-        size_names[dungeon->size],
-        goal_names[dungeon->goal]);
-        ++map->turn_number;
+    message_format(map, "Beginning mission with %s.", dungeon->player->name);
+    ++map->turn_number;
 
     while (!wants_to_quit) {
         clear();
@@ -140,6 +137,10 @@ void delve_loop(struct dungeon_def *dungeon) {
             mvprintw(21, 0 + i * 20, "%d) 100", i + 1);
             mvprintw(22, 0 + i * 20, "Mighty Bash");
         }
+        mvprintw(20, 41, " %s %s ",
+            size_names[dungeon->size],
+            goal_names[dungeon->goal]);
+        refresh();
 
         int key = getch();
 

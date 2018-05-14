@@ -279,3 +279,14 @@ void map_dump(const struct map_def *map, const char *filename) {
 
     fclose(out);
 }
+
+struct room_def* map_get_room(struct map_def *map, int x, int y) {
+    struct room_def *current = map->rooms;
+    while (current) {
+        if (x > current->x1 && x < current->x2 && y > current->y1 && y < current->y2) {
+            return current;
+        }
+        current = current->next;
+    }
+    return NULL;
+}

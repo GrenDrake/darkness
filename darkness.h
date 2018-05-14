@@ -142,6 +142,8 @@ struct actor_def {
 struct room_def {
     int x1, y1, x2, y2;
     int type;
+
+    int explored;
     struct room_def *next;
 };
 
@@ -199,6 +201,7 @@ int map_was_seen(const struct map_def *map, int x, int y);
 int map_in_view(const struct map_def *map, int x, int y);
 void map_do_fov(struct map_def *map, int from_x, int from_y, int range);
 void map_dump(const struct map_def *map, const char *filename);
+struct room_def* map_get_room(struct map_def *map, int x, int y);
 
 struct map_def* map_generate(struct dungeon_def *dungeon);
 

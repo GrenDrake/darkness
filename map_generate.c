@@ -141,6 +141,7 @@ static struct room_def* make_room(struct map_def *map, int x, int y) {
             break;
     }
 
+    room->explored = 0;
     room->type = -1;
     room->next = NULL;
     room->x1 = x;

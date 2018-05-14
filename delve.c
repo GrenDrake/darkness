@@ -80,6 +80,7 @@ void test_dungeon_complete(struct dungeon_def *dungeon, struct map_def *map) {
         return;
     }
 
+    int total = 0, valid = 0;
     switch(dungeon->goal) {
         case GOAL_KILLALL:
             for (int y = 0; y < map->height; ++y) {
@@ -92,6 +93,20 @@ void test_dungeon_complete(struct dungeon_def *dungeon, struct map_def *map) {
             }
             dungeon->complete = 1;
             return;
+        case GOAL_EXPLORE: {
+            struct room_def *room = map->rooms;
+            while (room) {
+                ++total;
+                if (room->explored) {
+                    ++valid;
+                }
+                room = room->next;
+            }
+            if (valid >= total * 80 / 100) {
+                dungeon->complete = 1;
+            }
+            break;
+        }
     }
 }
 
@@ -124,6 +139,11 @@ void player_action(struct map_def *map, struct actor_def *player, int action) {
                     actor_do_attack(map, player, who, NULL);
                     player->tick += TICK_MOVE;
                     success = 1;
+                }
+            } else {
+                struct room_def *room = map_get_room(map, player->x, player->y);
+                if (room) {
+                    room->explored = 1;
                 }
             }
             break;
@@ -170,6 +190,8 @@ void delve_loop(struct dungeon_def *dungeon) {
                 size_names[dungeon->size],
                 goal_names[dungeon->goal]);
         }
+        struct room_def *room = map_get_room(map, dungeon->player->x, dungeon->player->y);
+        mvprintw(max_y - max_messages - 2, max_x - status_width + 2, " %p", room);
 
         draw_map(map, dungeon->player->x, dungeon->player->y);
         draw_log(map);

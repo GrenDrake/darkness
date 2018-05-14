@@ -117,6 +117,9 @@ void gameloop() {
 
             case 'Q':
                 wants_to_quit = 1;
+                for (int i = 0; i < MAX_ROSTER_SIZE; ++i) {
+                    free(roster[i]);
+                }
                 return;
         }
     }

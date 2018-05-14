@@ -86,7 +86,7 @@ void map_destroy(struct map_def *map) {
 
     const int map_tiles = map->width * map->height;
     for (int i = 0; i < map_tiles; ++i) {
-        free(map->actors[i]);
+        actor_destroy(map->actors[i]);
     }
     free(map->actors);
     free(map->visibility);
@@ -105,6 +105,9 @@ int map_get_tile(const struct map_def *map, int x, int y) {
 }
 
 void map_set_tile(const struct map_def *map, int x, int y, int new_tile) {
+    if (!map_valid_coord(map, x, y)) {
+        return;
+    }
     map->tiles[x + y * map->width] = new_tile;
 }
 

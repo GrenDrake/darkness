@@ -51,6 +51,10 @@ struct actor_def* actor_new(int class_ident) {
     return actor;
 }
 
+void actor_destroy(struct actor_def *actor) {
+    free(actor);
+}
+
 int actor_action_step(struct map_def *map, struct actor_def *actor, int direction) {
     int nx = actor->x;
     int ny = actor->y;

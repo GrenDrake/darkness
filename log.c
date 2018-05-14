@@ -48,6 +48,7 @@ void message_freeall(struct map_def *map) {
     struct message_def *cur = map->log, *next;
     while (cur) {
         next = cur->next;
+        free(cur->msg);
         free(cur);
         cur = next;
     }

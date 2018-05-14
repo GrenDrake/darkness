@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -197,14 +198,14 @@ void map_tick(struct map_def *map, struct actor_def *player) {
     ++map->turn_number;
 }
 
-int map_was_seen(struct map_def *map, int x, int y) {
+int map_was_seen(const struct map_def *map, int x, int y) {
     if (!map_valid_coord(map, x, y)) {
         return 0;
     }
     return (map->visibility[x + y * map->width] & MAP_WAS_SEEN) == MAP_WAS_SEEN;
 }
 
-int map_in_view(struct map_def *map, int x, int y) {
+int map_in_view(const struct map_def *map, int x, int y) {
     if (!map_valid_coord(map, x, y)) {
         return 0;
     }
@@ -244,4 +245,27 @@ void map_do_fov(struct map_def *map, int from_x, int from_y, int range) {
     }
 
     map_fov_helper(map, from_x, from_y, 1);
+}
+
+void map_dump(const struct map_def *map, const char *filename) {
+    FILE *out = fopen(filename, "wt");
+    if (!out) return;
+
+    for (int y = 0; y < map->height; ++y) {
+        for (int x = 0; x < map->width; ++x) {
+            const struct tile_type *tile = tile_get_info(map_get_tile(map, x, y));
+            const struct actor_def *actor = map_get_actor(map, x, y);
+
+            if (map_in_view(map, x, y)) {
+                if (actor) {
+                    fputc(actor->my_class->glyph, out);
+                    continue;
+                }
+            }
+            fputc(tile->glyph, out);
+        }
+        fputc('\n', out);
+    }
+
+    fclose(out);
 }

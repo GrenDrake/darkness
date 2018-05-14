@@ -149,6 +149,9 @@ void delve_loop(struct dungeon_def *dungeon) {
             case 'L':
                 message_add(map, "Message test.");
                 break;
+            case 'D':
+                map_dump(map, "map.txt");
+                break;
 
         // ability related
             case 'b':

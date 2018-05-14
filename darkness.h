@@ -167,9 +167,10 @@ int map_shift_actor(struct map_def *map, struct actor_def *actor, int direction)
 int map_move_actor(struct map_def *map, struct actor_def *actor, int new_x, int new_y);
 void map_find_space(const struct map_def *map, int *x, int *y);
 void map_tick(struct map_def *map, struct actor_def *player);
-int map_was_seen(struct map_def *map, int x, int y);
-int map_in_view(struct map_def *map, int x, int y);
+int map_was_seen(const struct map_def *map, int x, int y);
+int map_in_view(const struct map_def *map, int x, int y);
 void map_do_fov(struct map_def *map, int from_x, int from_y, int range);
+void map_dump(const struct map_def *map, const char *filename);
 
 struct map_def* map_generate(struct dungeon_def *dungeon);
 

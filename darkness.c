@@ -116,6 +116,9 @@ void gameloop() {
                 break;
 
             case 'Q':
+                if (yes_or_no("Are you sure you want to quit?", "", ANSWER_NO) == ANSWER_NO) {
+                    break;
+                }
                 wants_to_quit = 1;
                 for (int i = 0; i < MAX_ROSTER_SIZE; ++i) {
                     free(roster[i]);
@@ -139,6 +142,7 @@ int main() {
     init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
     init_pair(6, COLOR_CYAN, COLOR_BLACK);
     init_pair(7, COLOR_WHITE, COLOR_BLACK);
+    init_pair(CP_DIALOG, COLOR_WHITE, COLOR_BLACK);
     rng_init_time();
     gameloop();
     endwin();

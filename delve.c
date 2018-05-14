@@ -213,6 +213,9 @@ void delve_loop(struct dungeon_def *dungeon) {
                 player_action(map, dungeon->player, ACTION_STEP_SOUTH);
                 break;
             case 'Q':
+                if (yes_or_no("Are you sure you want to quit?", "This will count as a withdraw from your current run.", ANSWER_NO) == ANSWER_NO) {
+                    break;
+                }
                 wants_to_quit = 1;
                 map_set_actor(map, dungeon->player->x, dungeon->player->y, NULL);
                 map_destroy(map);

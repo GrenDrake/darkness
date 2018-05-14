@@ -8,6 +8,11 @@
 #define CP_MAGENTA          5
 #define CP_CYAN             6
 #define CP_WHITE            7
+#define CP_DIALOG           15
+
+#define ANSWER_NO           0
+#define ANSWER_YES          1
+#define ANSWER_NODEFAULT    -1
 
 #define SIDE_PLAYER         0
 #define SIDE_ENEMY          1
@@ -201,6 +206,9 @@ void rng_init_time();
 int rng_max(int max);
 int rng_range(int min, int max);
 int rng_roll(int count, int sides);
+
+int yes_or_no(const char *prompt, const char *line2, int default_answer);
+
 
 extern int wants_to_quit;
 extern const char *size_names[SIZE_COUNT];

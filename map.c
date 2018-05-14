@@ -199,14 +199,13 @@ static struct actor_def* map_find_lowest_tick(struct map_def *map) {
 }
 
 void map_tick(struct map_def *map, struct actor_def *player) {
+    ++map->turn_number;
 
     while (1) {
         struct actor_def *current = map_find_lowest_tick(map);
         if (current == player) return;
         actor_generic_ai(map, current);
     }
-
-    ++map->turn_number;
 }
 
 int map_was_seen(const struct map_def *map, int x, int y) {

@@ -81,6 +81,7 @@
 
 struct message_def {
     char *msg;
+    int turn_number;
 
     struct message_def *next;
 };

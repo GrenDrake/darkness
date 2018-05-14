@@ -39,7 +39,11 @@ void draw_log(struct map_def *map) {
     int count = 0;
 
     while (count < max_messages && msg) {
+        if (msg->turn_number == map->turn_number - 1) {
+            attrset(A_BOLD);
+        }
         mvprintw(max_messages - count - 1, 41, "%s", msg->msg);
+        attrset(0);
 
         ++count;
         msg = msg->next;
@@ -109,6 +113,7 @@ void delve_loop(struct dungeon_def *dungeon) {
     message_format(map, "Beginning %s %s",
         size_names[dungeon->size],
         goal_names[dungeon->goal]);
+        ++map->turn_number;
 
     while (!wants_to_quit) {
         clear();

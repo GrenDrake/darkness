@@ -9,10 +9,13 @@ void draw_map(struct map_def *map, int cx, int cy);
 void player_action(struct map_def *map, struct actor_def *player, int action);
 void delve_loop(struct dungeon_def *dungeon);
 
+
 const int max_messages = 10;
 const int status_width = 40;
 static int max_x = 0;
 static int max_y = 0;
+
+
 
 void draw_map(struct map_def *map, int cx, int cy) {
     int map_half_height = max_y / 2;
@@ -59,6 +62,19 @@ void draw_log(struct map_def *map) {
     }
 }
 
+static void draw_player_stats(struct actor_def *player) {
+    int left_margin = max_x - status_width + 1;
+    mvprintw(0, left_margin, "%s the %s", player->name, player->my_class->name);
+    mvprintw(1, left_margin, "HP: %d/%d", player->hp, actor_get_stat(player, STAT_MAXHP));
+    mvprintw(2, left_margin, "ACC: %d", actor_get_stat(player, STAT_ACCURACY));
+    mvprintw(2, left_margin + status_width / 2, "DODGE: %d", actor_get_stat(player, STAT_DODGE));
+    mvprintw(3, left_margin, "DAMAGE: %d-%d", actor_get_stat(player, STAT_DAMAGE_MIN), actor_get_stat(player, STAT_DAMAGE_MAX));
+    mvprintw(3, left_margin + status_width / 2, "PROTECTION: %d", actor_get_stat(player, STAT_PROTECTION));
+    mvprintw(4, left_margin, "SPEED: %d", actor_get_stat(player, STAT_SPEED));
+    mvprintw(4, left_margin + status_width / 2, "CRITICAL: %d%%", actor_get_stat(player, STAT_CRITICAL));
+}
+
+
 void player_action(struct map_def *map, struct actor_def *player, int action) {
     int success = 0;
     switch(action) {
@@ -98,17 +114,6 @@ void player_action(struct map_def *map, struct actor_def *player, int action) {
     }
 }
 
-static void draw_player_stats(struct actor_def *player) {
-    int left_margin = max_x - status_width + 1;
-    mvprintw(0, left_margin, "%s the %s", player->name, player->my_class->name);
-    mvprintw(1, left_margin, "HP: %d/%d", player->hp, actor_get_stat(player, STAT_MAXHP));
-    mvprintw(2, left_margin, "ACC: %d", actor_get_stat(player, STAT_ACCURACY));
-    mvprintw(2, left_margin + status_width / 2, "DODGE: %d", actor_get_stat(player, STAT_DODGE));
-    mvprintw(3, left_margin, "DAMAGE: %d-%d", actor_get_stat(player, STAT_DAMAGE_MIN), actor_get_stat(player, STAT_DAMAGE_MAX));
-    mvprintw(3, left_margin + status_width / 2, "PROTECTION: %d", actor_get_stat(player, STAT_PROTECTION));
-    mvprintw(4, left_margin, "SPEED: %d", actor_get_stat(player, STAT_SPEED));
-    mvprintw(4, left_margin + status_width / 2, "CRITICAL: %d%%", actor_get_stat(player, STAT_CRITICAL));
-}
 
 void delve_loop(struct dungeon_def *dungeon) {
     struct map_def *map = map_generate(dungeon);

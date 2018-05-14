@@ -39,7 +39,7 @@ void draw_log(struct map_def *map) {
     int count = 0;
 
     while (count < max_messages && msg) {
-        mvprintw(count, 41, "%s", msg->msg);
+        mvprintw(max_messages - count - 1, 41, "%s", msg->msg);
 
         ++count;
         msg = msg->next;
@@ -71,7 +71,7 @@ void player_action(struct map_def *map, struct actor_def *player, int action) {
                 shift_point(&x, &y, action);
                 struct actor_def *who = map_get_actor(map, x, y);
                 if (who) {
-                    actor_die(map, who);
+                    actor_do_attack(map, player, who, NULL);
                     player->tick += TICK_MOVE;
                     success = 1;
                 }

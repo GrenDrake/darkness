@@ -68,6 +68,7 @@ struct map_def* map_create(int width, int height) {
         return NULL;
     }
 
+    map->rooms = NULL;
     map->log = NULL;
     map->turn_number = 0;
     return map;
@@ -75,6 +76,13 @@ struct map_def* map_create(int width, int height) {
 
 void map_destroy(struct map_def *map) {
     message_freeall(map);
+
+    struct room_def *room = map->rooms;
+    while (room) {
+        struct room_def *next = room->next;
+        free(room);
+        room = next;
+    }
 
     const int map_tiles = map->width * map->height;
     for (int i = 0; i < map_tiles; ++i) {

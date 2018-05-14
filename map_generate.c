@@ -9,30 +9,24 @@ const int map_sizes[SIZE_COUNT] = {
     16, 32, 48, 64, 80, 96
 };
 
-struct map_room {
-    int x1, y1, x2, y2;
-    int type;
-    struct map_room *next;
-};
-
 void draw_map(struct map_def *map);
 
-static struct map_room* random_room(struct map_room *first, int room_count);
+static struct room_def* random_room(struct room_def *first, int room_count);
 static int point_direction(struct map_def *map, int x, int y);
-static void point_on_border(struct map_def *map, struct map_room *room, int *x, int *y);
-static void point_in_room(struct map_def *map, struct map_room *room, int *x_out, int *y_out);
+static void point_on_border(struct map_def *map, struct room_def *room, int *x, int *y);
+static void point_in_room(struct map_def *map, struct room_def *room, int *x_out, int *y_out);
 static int map_area_is(struct map_def *map, int x1, int y1, int x2, int y2, int tile);
-static int validate_room(struct map_def *map, struct map_room *room);
-static struct map_room* make_room(struct map_def *map, int x, int y);
+static int validate_room(struct map_def *map, struct room_def *room);
+static struct room_def* make_room(struct map_def *map, int x, int y);
 
-static struct map_room* random_room(struct map_room *first, int room_count) {
+static struct room_def* random_room(struct room_def *first, int room_count) {
     if (first == NULL || room_count == 0) {
         return NULL;
     }
 
     int room_no = rng_max(room_count);
     int i = 0;
-    struct map_room *result = first;
+    struct room_def *result = first;
     while (result && i < room_no) {
         result = result->next;
         ++i;
@@ -59,7 +53,7 @@ static int point_direction(struct map_def *map, int x, int y) {
     }
 }
 
-static void point_on_border(struct map_def *map, struct map_room *room, int *x, int *y) {
+static void point_on_border(struct map_def *map, struct room_def *room, int *x, int *y) {
     switch (rng_max(4)) {
         case 0: // north
             *x = room->x1 + 1 + rng_max(room->x2 - room->x1 - 2);
@@ -80,7 +74,7 @@ static void point_on_border(struct map_def *map, struct map_room *room, int *x, 
     }
 }
 
-static void point_in_room(struct map_def *map, struct map_room *room, int *x_out, int *y_out) {
+static void point_in_room(struct map_def *map, struct room_def *room, int *x_out, int *y_out) {
     int width = room->x2 - room->x1 - 2;
     int height = room->y2 - room->y1 - 2;
     int iterations = 0;
@@ -108,7 +102,7 @@ static int map_area_is(struct map_def *map, int x1, int y1, int x2, int y2, int 
     return 1;
 }
 
-static int validate_room(struct map_def *map, struct map_room *room) {
+static int validate_room(struct map_def *map, struct room_def *room) {
     if (room->x1 < 0 || room->y1 < 0 || room->x2 >= map->width || room->y2 >= map->height) {
         return 0;
     }
@@ -120,8 +114,8 @@ static int validate_room(struct map_def *map, struct map_room *room) {
     return 1;
 }
 
-static struct map_room* make_room(struct map_def *map, int x, int y) {
-    struct map_room *room = malloc(sizeof(struct map_room));
+static struct room_def* make_room(struct map_def *map, int x, int y) {
+    struct room_def *room = malloc(sizeof(struct room_def));
     if (!room) {
         return NULL;
     }
@@ -147,6 +141,7 @@ static struct map_room* make_room(struct map_def *map, int x, int y) {
             break;
     }
 
+    room->type = -1;
     room->next = NULL;
     room->x1 = x;
     room->y1 = y;
@@ -176,7 +171,7 @@ struct map_def* map_generate(struct dungeon_def *dungeon) {
         map_sizes[dungeon->size] + rng_max(16));
     memset(map->tiles, 0, sizeof(map->width * map->height * sizeof(int)));
 
-    struct map_room *rooms = NULL;
+    struct room_def *rooms = NULL;
     do {
         int x, y;
         x = rng_max(map->width);
@@ -185,7 +180,7 @@ struct map_def* map_generate(struct dungeon_def *dungeon) {
     } while (rooms == NULL);
 
     while (failure_count < max_failures) {
-        struct map_room *room, *parent;
+        struct room_def *room, *parent;
 
         int x, y;
         parent = random_room(rooms, room_count);
@@ -206,7 +201,7 @@ struct map_def* map_generate(struct dungeon_def *dungeon) {
         }
     }
 
-    struct map_room *room;
+    struct room_def *room;
     room = random_room(rooms, room_count);
     if (room) {
         int x = 1 + room->x1 + rng_max(room->x2 - room->x1 - 1);
@@ -238,12 +233,6 @@ struct map_def* map_generate(struct dungeon_def *dungeon) {
         room = room->next;
     }
 
-    room = rooms;
-    while (room) {
-        struct map_room *next = room->next;
-        free(room);
-        room = next;
-    }
-
+    map->rooms = rooms;
     return map;
 }

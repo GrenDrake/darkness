@@ -123,6 +123,12 @@ struct actor_def {
     int tick;
 };
 
+struct room_def {
+    int x1, y1, x2, y2;
+    int type;
+    struct room_def *next;
+};
+
 struct map_def {
     int width;
     int height;
@@ -131,6 +137,7 @@ struct map_def {
     struct actor_def **actors;
 
     int turn_number;
+    struct room_def *rooms;
     struct message_def *log;
 };
 

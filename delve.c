@@ -98,6 +98,18 @@ void player_action(struct map_def *map, struct actor_def *player, int action) {
     }
 }
 
+static void draw_player_stats(struct actor_def *player) {
+    int left_margin = max_x - status_width + 1;
+    mvprintw(0, left_margin, "%s the %s", player->name, player->my_class->name);
+    mvprintw(1, left_margin, "HP: %d/%d", player->hp, actor_get_stat(player, STAT_MAXHP));
+    mvprintw(2, left_margin, "ACC: %d", actor_get_stat(player, STAT_ACCURACY));
+    mvprintw(2, left_margin + status_width / 2, "DODGE: %d", actor_get_stat(player, STAT_DODGE));
+    mvprintw(3, left_margin, "DAMAGE: %d-%d", actor_get_stat(player, STAT_DAMAGE_MIN), actor_get_stat(player, STAT_DAMAGE_MAX));
+    mvprintw(3, left_margin + status_width / 2, "PROTECTION: %d", actor_get_stat(player, STAT_PROTECTION));
+    mvprintw(4, left_margin, "SPEED: %d", actor_get_stat(player, STAT_SPEED));
+    mvprintw(4, left_margin + status_width / 2, "CRITICAL: %d%%", actor_get_stat(player, STAT_CRITICAL));
+}
+
 struct map_def* map_new() {
     int map_width = 40 * (1 + rng_max(4));
     int map_height = 15 * (1 + rng_max(4));
@@ -137,6 +149,7 @@ void delve_loop(struct dungeon_def *dungeon) {
 
         draw_map(map, dungeon->player->x, dungeon->player->y);
         draw_log(map);
+        draw_player_stats(dungeon->player);
         refresh();
 
         int key = getch();

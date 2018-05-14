@@ -110,14 +110,6 @@ static void draw_player_stats(struct actor_def *player) {
     mvprintw(4, left_margin + status_width / 2, "CRITICAL: %d%%", actor_get_stat(player, STAT_CRITICAL));
 }
 
-struct map_def* map_new() {
-    int map_width = 40 * (1 + rng_max(4));
-    int map_height = 15 * (1 + rng_max(4));
-    struct map_def *map = map_create(map_width, map_height);
-    map->log = NULL;
-    return map;
-}
-
 void delve_loop(struct dungeon_def *dungeon) {
     struct map_def *map = map_generate(dungeon);
     if (!map) {

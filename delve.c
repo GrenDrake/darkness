@@ -105,7 +105,10 @@ void delve_loop(struct dungeon_def *dungeon) {
     map_set_actor(map, px, py, dungeon->player);
     dungeon->player->tick = 0;
     map_do_fov(map, dungeon->player->x, dungeon->player->y, 4);
-    message_format(map, "Beginning mission with %s.", dungeon->player->name);
+    message_format(map, "   mission with %s.", dungeon->player->name);
+    message_format(map, "Beginning %s %s",
+        size_names[dungeon->size],
+        goal_names[dungeon->goal]);
 
     while (!wants_to_quit) {
         clear();

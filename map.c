@@ -7,10 +7,10 @@
 static struct actor_def* map_find_lowest_tick(struct map_def *map);
 
 const struct tile_type tile_types[] = {
-    { '#', 0, "wall",  TILE_OPAQUE | TILE_SOLID },
-    { '.', 0, "floor", 0 },
-    { '+', 0, "door", TILE_OPAQUE },
-    { '>', 0, "stair down", 0 },
+    { '#', CP_WHITE,  0, "wall",  TILE_OPAQUE | TILE_SOLID },
+    { '.', CP_WHITE,  0, "floor", 0 },
+    { '+', CP_YELLOW, 0, "door", TILE_OPAQUE },
+    { '>', CP_YELLOW, 0, "stair down", 0 },
 };
 
 const char *size_names[SIZE_COUNT] = {

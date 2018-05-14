@@ -21,12 +21,14 @@ void draw_map(struct map_def *map, int cx, int cy) {
             if (map_in_view(map, x, y)) {
                 attrset(A_BOLD);
                 if (actor) {
+                    attron(COLOR_PAIR(actor->my_class->color));
                     mvaddch(sy, sx, actor->my_class->glyph);
                     continue;
                 }
             } else {
                 attrset(0);
             }
+            attron(COLOR_PAIR(tile->color));
             mvaddch(sy, sx, tile->glyph);
         }
     }
@@ -40,7 +42,7 @@ void draw_log(struct map_def *map) {
 
     while (count < max_messages && msg) {
         if (msg->turn_number == map->turn_number - 1) {
-            attrset(A_BOLD);
+            attrset(A_BOLD | COLOR_PAIR(CP_GREEN));
         }
         mvprintw(max_messages - count - 1, 41, "%s", msg->msg);
         attrset(0);

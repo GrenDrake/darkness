@@ -1,6 +1,14 @@
 #ifndef DARKEST_H
 #define DARKEST_H
 
+#define CP_RED              1
+#define CP_GREEN            2
+#define CP_YELLOW           3
+#define CP_BLUE             4
+#define CP_MAGENTA          5
+#define CP_CYAN             6
+#define CP_WHITE            7
+
 #define SIDE_PLAYER         0
 #define SIDE_ENEMY          1
 #define PARTY_SIZE          4
@@ -97,6 +105,7 @@ struct class_def {
     int ident;
     const char *name;
     int glyph;
+    int color;
     const struct attack_def *attacks[MAX_CLASS_ATTACKS];
     int base_stats[STAT_COUNT];
     const char *description;
@@ -104,6 +113,7 @@ struct class_def {
 
 struct tile_type {
     int glyph;
+    int color;
     int attribute;
     const char *name;
     int flags;

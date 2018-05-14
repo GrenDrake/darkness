@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,6 +17,7 @@ void message_add(struct map_def *map, const char *text) {
     }
 
     strcpy(msg->msg, text);
+    msg->msg[0] = toupper(msg->msg[0]);
     msg->next = map->log;
     map->log = msg;
 }
@@ -41,6 +43,7 @@ void message_format(struct map_def *map, const char *text, ...) {
     vsprintf(msg->msg, text, args);
     msg->next = map->log;
     map->log = msg;
+    msg->msg[0] = toupper(msg->msg[0]);
     va_end(args);
 }
 

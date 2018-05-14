@@ -97,6 +97,7 @@ void gameloop() {
                     break;
                 }
                 dungeons[current_dungeon].player = roster[who];
+                dungeons[current_dungeon].complete = 0;
                 delve_loop(&dungeons[current_dungeon]);
                 break; }
 

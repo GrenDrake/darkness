@@ -75,6 +75,27 @@ static void draw_player_stats(struct actor_def *player) {
 }
 
 
+void test_dungeon_complete(struct dungeon_def *dungeon, struct map_def *map) {
+    if (dungeon->complete) {
+        return;
+    }
+
+    switch(dungeon->goal) {
+        case GOAL_KILLALL:
+            for (int y = 0; y < map->height; ++y) {
+                for (int x = 0; x < map->width; ++x) {
+                    struct actor_def *actor = map_get_actor(map, x, y);
+                    if (actor && actor != dungeon->player) {
+                        return;
+                    }
+                }
+            }
+            dungeon->complete = 1;
+            return;
+    }
+}
+
+
 void player_action(struct map_def *map, struct actor_def *player, int action) {
     int success = 0;
     switch(action) {
@@ -131,6 +152,8 @@ void delve_loop(struct dungeon_def *dungeon) {
     ++map->turn_number;
 
     while (!wants_to_quit) {
+        test_dungeon_complete(dungeon, map);
+
         getmaxyx(stdscr, max_y, max_x);
         clear();
 
@@ -140,9 +163,13 @@ void delve_loop(struct dungeon_def *dungeon) {
         for (int i = 0; i < max_x / 2; ++i) {
             mvaddch(max_y - max_messages - 1, max_x - status_width + i, ACS_CKBOARD);
         }
-        mvprintw(max_y - max_messages - 1, max_x - status_width + 2, " %s %s ",
-            size_names[dungeon->size],
-            goal_names[dungeon->goal]);
+        if (dungeon->complete) {
+            mvprintw(max_y - max_messages - 1, max_x - status_width + 2, " COMPLETE ");
+        } else {
+            mvprintw(max_y - max_messages - 1, max_x - status_width + 2, " %s %s ",
+                size_names[dungeon->size],
+                goal_names[dungeon->goal]);
+        }
 
         draw_map(map, dungeon->player->x, dungeon->player->y);
         draw_log(map);
@@ -153,10 +180,6 @@ void delve_loop(struct dungeon_def *dungeon) {
 
         switch (key) {
         // debug related
-            case 'E': // end quest
-                map_set_actor(map, dungeon->player->x, dungeon->player->y, NULL);
-                map_destroy(map);
-                return;
             case 'M': // reveal map
                 for (int y = 0; y < map->height; ++y) {
                     for (int x = 0; x < map->width; ++x) {
@@ -209,6 +232,13 @@ void delve_loop(struct dungeon_def *dungeon) {
             case KEY_DOWN:
                 player_action(map, dungeon->player, ACTION_STEP_SOUTH);
                 break;
+            case 'W':
+                if (!dungeon->complete && !yes_or_no("Abandon current run?", "You will receive no rewards if you leave now.", ANSWER_NO)) {
+                    break;
+                }
+                map_set_actor(map, dungeon->player->x, dungeon->player->y, NULL);
+                map_destroy(map);
+                return;
             case 'Q':
                 if (yes_or_no("Are you sure you want to quit?", "This will count as a withdraw from your current run.", ANSWER_NO) == ANSWER_NO) {
                     break;

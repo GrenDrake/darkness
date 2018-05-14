@@ -160,6 +160,7 @@ struct map_def {
 struct dungeon_def {
     int size;
     int goal;
+    int complete;
 
     struct actor_def *player;
 };

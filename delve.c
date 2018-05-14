@@ -7,7 +7,7 @@
 
 void draw_map(struct map_def *map, int cx, int cy);
 void player_action(struct map_def *map, struct actor_def *player, int action);
-void delve_loop(struct actor_def *player);
+void delve_loop(struct dungeon_def *dungeon);
 
 void draw_map(struct map_def *map, int cx, int cy) {
     for (int y = cy - 10, sy = 0; y < cy + 10; ++y, ++sy) {
@@ -93,20 +93,19 @@ struct map_def* map_new() {
     return map;
 }
 
-void delve_loop(struct actor_def *player) {
-    struct map_def *map = map_new();
+void delve_loop(struct dungeon_def *dungeon) {
+    struct map_def *map = map_generate(dungeon);
     if (!map) {
         printw("COULD NOT ALLOCATE MAP MEMORY");
         getch();
         return;
     }
-    map_generate(map);
     int px = 0, py = 0;
     map_find_space(map, &px, &py);
-    map_set_actor(map, px, py, player);
-    player->tick = 0;
-    map_do_fov(map, player->x, player->y, 4);
-    message_format(map, "Beginning mission with %s.", player->name);
+    map_set_actor(map, px, py, dungeon->player);
+    dungeon->player->tick = 0;
+    map_do_fov(map, dungeon->player->x, dungeon->player->y, 4);
+    message_format(map, "Beginning mission with %s.", dungeon->player->name);
 
     while (!wants_to_quit) {
         clear();
@@ -120,7 +119,7 @@ void delve_loop(struct actor_def *player) {
         for (int i = 0; i < 40; ++i) {
             mvaddch(10, 40+i, ACS_CKBOARD);
         }
-        draw_map(map, player->x, player->y);
+        draw_map(map, dungeon->player->x, dungeon->player->y);
         draw_log(map);
 
         for (int i = 0; i < 3; ++i) {
@@ -136,21 +135,10 @@ void delve_loop(struct actor_def *player) {
 
         switch (key) {
         // debug related
-            case 'N': // new map
-                map_set_actor(map, player->x, player->y, NULL);
+            case 'E': // end quest
+                map_set_actor(map, dungeon->player->x, dungeon->player->y, NULL);
                 map_destroy(map);
-                map = map_new();
-                if (!map) {
-                    printw("COULD NOT ALLOCATE MAP MEMORY");
-                    getch();
-                    return;
-                }
-                map_generate(map);
-                map_find_space(map, &px, &py);
-                map_set_actor(map, px, py, player);
-                map_do_fov(map, px, py, 99);
-                player->tick = 0;
-                break;
+                return;
             case 'M': // reveal map
                 for (int y = 0; y < map->height; ++y) {
                     for (int x = 0; x < map->width; ++x) {
@@ -164,50 +152,50 @@ void delve_loop(struct actor_def *player) {
 
         // ability related
             case 'b':
-                player_action(map, player, ACTION_BASIC_ATTACK);
+                player_action(map, dungeon->player, ACTION_BASIC_ATTACK);
                 break;
 
         //  movement related
             case ' ':
             case KEY_B2:
-                player_action(map, player, ACTION_WAIT);
+                player_action(map, dungeon->player, ACTION_WAIT);
                 break;
             case KEY_HOME:
             case KEY_A1:
-                player_action(map, player, ACTION_STEP_NORTHEAST);
+                player_action(map, dungeon->player, ACTION_STEP_NORTHEAST);
                 break;
             case KEY_PPAGE:
             case KEY_A3:
-                player_action(map, player, ACTION_STEP_NORTHWEST);
+                player_action(map, dungeon->player, ACTION_STEP_NORTHWEST);
                 break;
             case KEY_END:
             case KEY_C1:
-                player_action(map, player, ACTION_STEP_SOUTHEAST);
+                player_action(map, dungeon->player, ACTION_STEP_SOUTHEAST);
                 break;
             case KEY_NPAGE:
             case KEY_C3:
-                player_action(map, player, ACTION_STEP_SOUTHWEST);
+                player_action(map, dungeon->player, ACTION_STEP_SOUTHWEST);
                 break;
             case KEY_LEFT:
-                player_action(map, player, ACTION_STEP_EAST);
+                player_action(map, dungeon->player, ACTION_STEP_EAST);
                 break;
             case KEY_RIGHT:
-                player_action(map, player, ACTION_STEP_WEST);
+                player_action(map, dungeon->player, ACTION_STEP_WEST);
                 break;
             case KEY_UP:
-                player_action(map, player, ACTION_STEP_NORTH);
+                player_action(map, dungeon->player, ACTION_STEP_NORTH);
                 break;
             case KEY_DOWN:
-                player_action(map, player, ACTION_STEP_SOUTH);
+                player_action(map, dungeon->player, ACTION_STEP_SOUTH);
                 break;
             case 'Q':
                 wants_to_quit = 1;
-                map_set_actor(map, player->x, player->y, NULL);
+                map_set_actor(map, dungeon->player->x, dungeon->player->y, NULL);
                 map_destroy(map);
                 return;
         }
     }
 
-    map_set_actor(map, player->x, player->y, NULL);
+    map_set_actor(map, dungeon->player->x, dungeon->player->y, NULL);
     map_destroy(map);
 }

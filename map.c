@@ -12,6 +12,13 @@ const struct tile_type tile_types[] = {
     { '>', 0, "stair down", 0 },
 };
 
+const char *size_names[SIZE_COUNT] = {
+    "Tiny", "Small", "Average", "Large", "Huge", "Excessive"
+};
+const char *goal_names[GOAL_COUNT] = {
+    "Explore", "Exterminate", "Activate", "Collect", "Boss"
+};
+
 
 const struct tile_type* tile_get_info(int tt) {
     if (tt < 0) return NULL;
@@ -60,6 +67,7 @@ struct map_def* map_create(int width, int height) {
         return NULL;
     }
 
+    map->log = NULL;
     map->turn_number = 0;
     return map;
 }

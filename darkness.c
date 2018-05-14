@@ -7,7 +7,7 @@
 #include "darkness.h"
 
 void gameloop();
-void delve_loop(struct actor_def *player);
+void delve_loop(struct dungeon_def *dungeon);
 
 int wants_to_quit = 0;
 
@@ -46,13 +46,23 @@ int pick_character() {
     return -1;
 }
 
+void make_dungeons(struct dungeon_def *dungeons) {
+    for (int i = 0; i < DUNGEON_COUNT; ++i) {
+        dungeons[i].size = rng_max(SIZE_COUNT);
+        dungeons[i].goal = rng_max(GOAL_COUNT);
+    }
+}
+
 void gameloop() {
     struct actor_def *roster[MAX_ROSTER_SIZE] = { NULL };
+    struct dungeon_def dungeons[DUNGEON_COUNT];
+    int current_dungeon = 0;
 
     roster[0] = actor_new(0);
     roster[2] = actor_new(1);
     strcpy(roster[0]->name, "Fred");
     strcpy(roster[2]->name, "Jane");
+    make_dungeons(dungeons);
 
     while (!wants_to_quit) {
         clear();
@@ -62,16 +72,32 @@ void gameloop() {
         for (int i = 0; i < MAX_ROSTER_SIZE; ++i) {
             draw_character(i, roster[i]);
         }
+        for (int i = 0; i < DUNGEON_COUNT; ++i) {
+            mvprintw(i, 25, "%s %d) %s %s %s",
+                current_dungeon == i ? "**" : "  ", i + 1,
+                size_names[dungeons[i].size],
+                goal_names[dungeons[i].goal],
+                current_dungeon == i ? "**" : "  ");
+        }
 
         int key = getch();
 
         switch (key) {
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+                current_dungeon = key - '1';
+                break;
+
             case 'd': {
                 int who = pick_character();
                 if (roster[who] == NULL) {
                     break;
                 }
-                delve_loop(roster[who]);
+                dungeons[current_dungeon].player = roster[who];
+                delve_loop(&dungeons[current_dungeon]);
                 break; }
 
             case 's': {
@@ -84,6 +110,10 @@ void gameloop() {
                 roster[first] = roster[second];
                 roster[second] = tmp;
                 break; }
+
+            case 'N':
+                make_dungeons(dungeons);
+                break;
 
             case 'Q':
                 wants_to_quit = 1;

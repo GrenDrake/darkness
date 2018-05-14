@@ -46,6 +46,23 @@
 #define TILE_SOLID          0x01
 #define TILE_OPAQUE         0x02
 
+#define DUNGEON_COUNT       5
+
+#define SIZE_TINY           0
+#define SIZE_SMALL          1
+#define SIZE_AVERAGE        2
+#define SIZE_LARGE          3
+#define SIZE_HUGE           4
+#define SIZE_EXCESSIVE      5
+#define SIZE_COUNT          6
+
+#define GOAL_EXPLORE        0
+#define GOAL_KILLALL        1
+#define GOAL_ACTIVATE       2
+#define GOAL_COLLECT        3
+#define GOAL_BOSS           4
+#define GOAL_COUNT          5
+
 #define SEX_MALE            0
 #define SEX_FEMALE          1
 #define SEX_NEUTER          2
@@ -117,6 +134,13 @@ struct map_def {
     struct message_def *log;
 };
 
+struct dungeon_def {
+    int size;
+    int goal;
+
+    struct actor_def *player;
+};
+
 void message_add(struct map_def *map, const char *text);
 void message_format(struct map_def *map, const char *text, ...);
 void message_freeall(struct map_def *map);
@@ -147,7 +171,7 @@ int map_was_seen(struct map_def *map, int x, int y);
 int map_in_view(struct map_def *map, int x, int y);
 void map_do_fov(struct map_def *map, int from_x, int from_y, int range);
 
-void map_generate(struct map_def *map);
+struct map_def* map_generate(struct dungeon_def *dungeon);
 
 void rng_init();
 void rng_init_time();
@@ -156,5 +180,7 @@ int rng_range(int min, int max);
 int rng_roll(int count, int sides);
 
 extern int wants_to_quit;
+extern const char *size_names[SIZE_COUNT];
+extern const char *goal_names[GOAL_COUNT];
 
 #endif

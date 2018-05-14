@@ -5,6 +5,10 @@
 
 #include <ncurses.h>
 
+const int map_sizes[SIZE_COUNT] = {
+    16, 32, 48, 64, 80, 96
+};
+
 struct map_room {
     int x1, y1, x2, y2;
     int type;
@@ -162,11 +166,14 @@ static struct map_room* make_room(struct map_def *map, int x, int y) {
     return room;
 }
 
-
-void map_generate(struct map_def *map) {
+struct map_def* map_generate(struct dungeon_def *dungeon) {
     const int max_failures = 1000;
     int failure_count = 0;
     int room_count = 1;
+
+    struct map_def *map = map_create(
+        map_sizes[dungeon->size] + rng_max(16),
+        map_sizes[dungeon->size] + rng_max(16));
     memset(map->tiles, 0, sizeof(map->width * map->height * sizeof(int)));
 
     struct map_room *rooms = NULL;
@@ -237,4 +244,6 @@ void map_generate(struct map_def *map) {
         free(room);
         room = next;
     }
+
+    return map;
 }

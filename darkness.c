@@ -99,6 +99,10 @@ void gameloop() {
                 dungeons[current_dungeon].player = roster[who];
                 dungeons[current_dungeon].complete = 0;
                 delve_loop(&dungeons[current_dungeon]);
+                if (roster[who]->hp <= 0) {
+                    actor_destroy(roster[who]);
+                    roster[who] = NULL;
+                }
                 break; }
 
             case 's': {

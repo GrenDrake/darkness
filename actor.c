@@ -30,8 +30,19 @@ const struct class_def* class_get(int ident) {
 }
 
 void actor_generic_ai(struct map_def *map, struct actor_def *actor) {
-    actor_action_step(map, actor, rand() % DIR_COUNT);
-    actor->tick += 3;
+    if (point_next_to(actor->x, actor->y, map->player->x, map->player->y)) {
+        actor_do_attack(map, actor, map->player, NULL);
+        actor->tick += 3;
+    } else if (map_in_view(map, actor->x, actor->y)) {
+        int dir = direction_between(actor->x, actor->y, map->player->x, map->player->y);
+        if (dir != DIR_NONE) {
+            actor_action_step(map, actor, dir);
+        }
+        actor->tick += 3;
+    } else {
+        actor_action_step(map, actor, rng_max(DIR_COUNT));
+        actor->tick += 3;
+    }
 }
 
 
@@ -94,8 +105,11 @@ const char* actor_get_name(const struct actor_def *actor) {
 
 void actor_die(struct map_def *map, struct actor_def *actor) {
     map_set_actor(map, actor->x, actor->y, NULL);
+    actor->x = actor->y = -1;
     message_format(map, "%s: dies.", actor->my_class->name);
-    actor_destroy(actor);
+    if (actor != map->player) {
+        actor_destroy(actor);
+    }
 }
 
 void actor_take_damage(struct map_def *map, struct actor_def *actor, int amount) {

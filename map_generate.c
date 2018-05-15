@@ -234,6 +234,7 @@ struct map_def* map_generate(struct dungeon_def *dungeon) {
         room = room->next;
     }
 
+    map->player = dungeon->player;
     map->rooms = rooms;
     return map;
 }

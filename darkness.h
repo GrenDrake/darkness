@@ -153,6 +153,7 @@ struct map_def {
     int *tiles;
     int *visibility;
     struct actor_def **actors;
+    struct actor_def *player;
 
     int turn_number;
     struct room_def *rooms;
@@ -185,6 +186,8 @@ int actor_do_attack(struct map_def *map, struct actor_def *attacker, struct acto
 
 const struct tile_type* tile_get_info(int tt);
 void shift_point(int *x, int *y, int direction);
+int point_next_to(int x, int y, int to_x, int to_y);
+int direction_between(int x1, int y1, int x2, int y2);
 
 struct map_def* map_create(int width, int height);
 void map_destroy(struct map_def *map);

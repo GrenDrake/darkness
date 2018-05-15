@@ -39,6 +39,28 @@ void shift_point(int *x, int *y, int direction) {
     }
 }
 
+int point_next_to(int x, int y, int to_x, int to_y) {
+    if (x < to_x - 1 || x > to_x + 1)   return 0;
+    if (y < to_y - 1 || y > to_y + 1)   return 0;
+    return 1;
+}
+
+int direction_between(int x1, int y1, int x2, int y2) {
+    if (x1 < x2) {
+        if (y1 < y2)    return DIR_SOUTHWEST;
+        if (y1 > y2)    return DIR_NORTHWEST;
+        else            return DIR_WEST;
+    } else if (x1 > x2) {
+        if (y1 < y2)    return DIR_SOUTHEAST;
+        if (y1 > y2)    return DIR_NORTHEAST;
+        else            return DIR_EAST;
+    } else {
+        if (y1 < y2)    return DIR_SOUTH;
+        if (y1 > y2)    return DIR_NORTH;
+        else            return DIR_NONE;
+    }
+}
+
 struct map_def* map_create(int width, int height) {
     struct map_def *map = malloc(sizeof(struct map_def));
     if (!map) {
@@ -201,7 +223,7 @@ static struct actor_def* map_find_lowest_tick(struct map_def *map) {
 void map_tick(struct map_def *map, struct actor_def *player) {
     ++map->turn_number;
 
-    while (1) {
+    while (player->hp > 0) {
         struct actor_def *current = map_find_lowest_tick(map);
         if (current == player) return;
         actor_generic_ai(map, current);

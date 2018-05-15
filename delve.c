@@ -171,7 +171,15 @@ void delve_loop(struct dungeon_def *dungeon) {
     message_format(map, "Beginning mission with %s.", dungeon->player->name);
     ++map->turn_number;
 
+    int scroll_x, scroll_y;
     while (!wants_to_quit) {
+        if (map->player->hp <= 0) {
+            message_format(map, "You have died...");
+            message_format(map, "Press a key to return to town");
+        } else {
+            scroll_x = map->player->x;
+            scroll_y = map->player->y;
+        }
         test_dungeon_complete(dungeon, map);
 
         getmaxyx(stdscr, max_y, max_x);
@@ -190,15 +198,16 @@ void delve_loop(struct dungeon_def *dungeon) {
                 size_names[dungeon->size],
                 goal_names[dungeon->goal]);
         }
-        struct room_def *room = map_get_room(map, dungeon->player->x, dungeon->player->y);
-        mvprintw(max_y - max_messages - 2, max_x - status_width + 2, " %p", room);
 
-        draw_map(map, dungeon->player->x, dungeon->player->y);
+        draw_map(map, scroll_x, scroll_y);
         draw_log(map);
         draw_player_stats(dungeon->player);
         refresh();
 
         int key = getch();
+        if (map->player->hp <= 0) {
+            return;
+        }
 
         switch (key) {
         // debug related

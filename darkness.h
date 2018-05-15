@@ -215,6 +215,7 @@ int rng_range(int min, int max);
 int rng_roll(int count, int sides);
 
 int yes_or_no(const char *prompt, const char *line2, int default_answer);
+void message_box(const char *line1, const char *line2);
 
 
 extern int wants_to_quit;

@@ -173,10 +173,7 @@ void delve_loop(struct dungeon_def *dungeon) {
 
     int scroll_x, scroll_y;
     while (!wants_to_quit) {
-        if (map->player->hp <= 0) {
-            message_format(map, "You have died...");
-            message_format(map, "Press a key to return to town");
-        } else {
+        if (map->player->hp > 0) {
             scroll_x = map->player->x;
             scroll_y = map->player->y;
         }
@@ -204,10 +201,12 @@ void delve_loop(struct dungeon_def *dungeon) {
         draw_player_stats(dungeon->player);
         refresh();
 
-        int key = getch();
         if (map->player->hp <= 0) {
+            message_box("You have died...", "");
             return;
         }
+
+        int key = getch();
 
         switch (key) {
         // debug related

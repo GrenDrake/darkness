@@ -106,7 +106,7 @@ const char* actor_get_name(const struct actor_def *actor) {
 void actor_die(struct map_def *map, struct actor_def *actor) {
     map_set_actor(map, actor->x, actor->y, NULL);
     actor->x = actor->y = -1;
-    message_format(map, "%s: dies.", actor->my_class->name);
+    message_format(map, "%s: dies.", actor_get_name(actor));
     if (actor != map->player) {
         actor_destroy(actor);
     }

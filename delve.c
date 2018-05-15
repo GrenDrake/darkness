@@ -218,6 +218,9 @@ void delve_loop(struct dungeon_def *dungeon) {
                     }
                 }
                 break;
+            case 'H':
+                map->player->hp = actor_get_stat(map->player, STAT_MAXHP);
+                break;
             case 'L':
                 message_add(map, "Message test.");
                 break;

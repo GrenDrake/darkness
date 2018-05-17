@@ -86,5 +86,5 @@ void message_box(const char *line1, const char *line2) {
     mvprintw(top+4, (maxX - 4) / 2, "OKAY");
 
     refresh();
-    toupper(getch());
+    getch();
 }

@@ -153,3 +153,67 @@ int actor_do_attack(struct map_def *map, struct actor_def *attacker, struct acto
     }
     return 1;
 }
+
+int actor_add_item(struct actor_def *actor, struct item_def *new_item) {
+    int first_empty = -1;
+    for (int i = 0; i < INVENTORY_SIZE; ++i) {
+        if (actor->inventory[i]) {
+            struct item_def *old_item = actor->inventory[i];
+            if (old_item->type_id == new_item->type_id) {
+                int max_remaining = old_item->my_type->max_stack - old_item->qty;
+                if (max_remaining > 0) {
+                    if (max_remaining >= new_item->qty) {
+                        old_item->qty += new_item->qty;
+                        item_destroy(new_item);
+                        return 1;
+                    } else {
+                        new_item->qty -= max_remaining;
+                        old_item->qty += max_remaining;
+                    }
+                }
+            }
+        } else if (first_empty == -1) {
+            first_empty = i;
+        }
+    }
+
+    if (first_empty < 0) {
+        return 0;
+    }
+    actor->inventory[first_empty] = new_item;
+    return 1;
+}
+
+int actor_item_qty(struct actor_def *actor, int item_type) {
+    int qty_found = 0;
+
+    for (int i = 0; i < INVENTORY_SIZE; ++i) {
+        if (actor->inventory[i] && actor->inventory[i]->type_id == item_type) {
+            qty_found += actor->inventory[i]->qty;
+        }
+    }
+
+    return qty_found;
+}
+
+int actor_remove_items(struct actor_def *actor, int item_type, int to_remove) {
+    if (actor_item_qty(actor, item_type) < to_remove) {
+        return 0;
+    }
+
+    for (int i = 0; i < INVENTORY_SIZE && to_remove > 0; ++i) {
+        if (actor->inventory[i]) {
+            if (actor->inventory[i]->type_id == item_type) {
+                if (actor->inventory[i]->qty > to_remove) {
+                    actor->inventory[i]->qty -= to_remove;
+                    return 1;
+                } else {
+                    to_remove -= actor->inventory[i]->qty;
+                    item_destroy(actor->inventory[i]);
+                    actor->inventory[i] = NULL;
+                }
+            }
+        }
+    }
+    return 1;
+}

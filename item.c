@@ -3,6 +3,9 @@
 #include "darkness.h"
 
 const struct item_type item_types[] = {
+    {   1,  "test",   1 },
+    {   2,  "apple",  3 },
+    {   3,  "turnip", 6 },
     {   -1, NULL }
 };
 
@@ -17,10 +20,11 @@ const struct item_type* itemtype_get(int ident) {
     return NULL;
 }
 
-struct item_def* item_new(int type_ident) {
+struct item_def* item_new(int type_ident, int qty) {
     struct item_def *item = calloc(1, sizeof(struct item_def));
     if (!item) return NULL;
 
+    item->qty = qty;
     item->type_id = type_ident;
     item->my_type = itemtype_get(type_ident);
     if (!item->my_type) {

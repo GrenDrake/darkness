@@ -65,13 +65,28 @@ void draw_log(struct map_def *map) {
 static void draw_player_stats(struct actor_def *player) {
     int left_margin = max_x - status_width + 1;
     mvprintw(0, left_margin, "%s the %s", player->name, player->my_class->name);
-    mvprintw(1, left_margin, "HP: %d/%d", player->hp, actor_get_stat(player, STAT_MAXHP));
-    mvprintw(2, left_margin, "ACC: %d", actor_get_stat(player, STAT_ACCURACY));
-    mvprintw(2, left_margin + status_width / 2, "DODGE: %d", actor_get_stat(player, STAT_DODGE));
-    mvprintw(3, left_margin, "DAMAGE: %d-%d", actor_get_stat(player, STAT_DAMAGE_MIN), actor_get_stat(player, STAT_DAMAGE_MAX));
-    mvprintw(3, left_margin + status_width / 2, "PROTECTION: %d", actor_get_stat(player, STAT_PROTECTION));
-    mvprintw(4, left_margin, "SPEED: %d", actor_get_stat(player, STAT_SPEED));
-    mvprintw(4, left_margin + status_width / 2, "CRITICAL: %d%%", actor_get_stat(player, STAT_CRITICAL));
+    mvprintw(2, left_margin, "HP: %d/%d", player->hp, actor_get_stat(player, STAT_MAXHP));
+    mvprintw(3, left_margin, "ACC: %d", actor_get_stat(player, STAT_ACCURACY));
+    mvprintw(3, left_margin + status_width / 2, "DODGE: %d", actor_get_stat(player, STAT_DODGE));
+    mvprintw(4, left_margin, "DAMAGE: %d-%d", actor_get_stat(player, STAT_DAMAGE_MIN), actor_get_stat(player, STAT_DAMAGE_MAX));
+    mvprintw(4, left_margin + status_width / 2, "PROTECTION: %d", actor_get_stat(player, STAT_PROTECTION));
+    mvprintw(5, left_margin, "SPEED: %d", actor_get_stat(player, STAT_SPEED));
+    mvprintw(5, left_margin + status_width / 2, "CRITICAL: %d%%", actor_get_stat(player, STAT_CRITICAL));
+}
+
+static void draw_player_inventory(struct actor_def *player) {
+    int left_margin = max_x - status_width + 1;
+    mvprintw(0, left_margin, "%s the %s", player->name, player->my_class->name);
+    for (int i = 0; i < INVENTORY_SIZE; ++i) {
+        if (player->inventory[i] == NULL) {
+            mvprintw(2 + i, left_margin, "%d) (empty)", i + 1);
+        } else {
+            mvprintw(2 + i, left_margin, "%d) %s (x%d)",
+                i + 1,
+                player->inventory[i]->my_type->name,
+                player->inventory[i]->qty);
+        }
+    }
 }
 
 
@@ -171,6 +186,7 @@ void delve_loop(struct dungeon_def *dungeon) {
     message_format(map, "Beginning mission with %s.", dungeon->player->name);
     ++map->turn_number;
 
+    int display_mode = 0;
     int scroll_x, scroll_y;
     while (!wants_to_quit) {
         if (map->player->hp > 0) {
@@ -198,7 +214,10 @@ void delve_loop(struct dungeon_def *dungeon) {
 
         draw_map(map, scroll_x, scroll_y);
         draw_log(map);
-        draw_player_stats(dungeon->player);
+        switch(display_mode) {
+            case 0: draw_player_stats(dungeon->player); break;
+            case 1: draw_player_inventory(dungeon->player); break;
+        }
         refresh();
 
         if (map->player->hp <= 0) {
@@ -225,6 +244,47 @@ void delve_loop(struct dungeon_def *dungeon) {
                 break;
             case 'D':
                 map_dump(map, "map.txt");
+                break;
+            case 'R': {
+                int type = getch() - '0';
+                int qty = getch() - '0';
+                if (qty < 0 || qty > 9) {
+                    message_format(map, "DEBUG: Bad item qty %d", qty);
+                    break;
+                }
+                if (!actor_remove_items(dungeon->player, type, qty)) {
+                    message_format(map, "DEBUG: Could not remove %d of type %d", qty, type);
+                }
+                break; }
+            case 'O': {
+                int type = getch() - '0';
+                int count = actor_item_qty(dungeon->player, type);
+                message_format(map, "DEBUG: holding %d of item type %d", count, type);
+                break; }
+            case 'I': {
+                int type = getch() - '0';
+                int qty = getch() - '0';
+                if (qty < 0 || qty > 9) {
+                    message_format(map, "DEBUG: Bad item qty %d", qty);
+                    break;
+                }
+                struct item_def *item = item_new(type, qty);
+                if (!item) {
+                    message_format(map, "DEBUG: Failed to create item of type %d", type);
+                    break;
+                }
+                if (!actor_add_item(dungeon->player, item)) {
+                    message_format(map, "DEBUG: Could not add item!");
+                    item_destroy(item);
+                }
+                break; }
+
+        // change display
+            case 'i':
+                display_mode = 1;
+                break;
+            case 'c':
+                display_mode = 0;
                 break;
 
         // ability related

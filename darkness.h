@@ -20,6 +20,7 @@
 #define MAX_ROSTER_SIZE     8
 #define MAX_CLASS_ATTACKS   8
 #define MAX_CHAR_NAME_LEN   32
+#define INVENTORY_SIZE      10
 
 #define BRIEF_FLOORS        1
 #define SHORT_FLOORS        3
@@ -80,11 +81,15 @@
 #define SEX_FEMALE          1
 #define SEX_NEUTER          2
 
-#define ITEM_JUNK           0
-#define ITEM_CONSUME        1
-#define ITEM_ARMOUR         2
-#define ITEM_WEAPON         3
-#define ITEM_TRINKET        4
+#define ITEM_ARMOUR         0
+#define ITEM_WEAPON         1
+#define ITEM_TRINKET        2
+#define ITEM_JUNK           3
+#define ITEM_CONSUME        4
+
+#define SLOT_ARMOUR         0
+#define SLOT_WEAPON         1
+#define SLOT_TRINKET        2
 
 #define ACTION_STEP_NORTH       0
 #define ACTION_STEP_NORTHEAST   1
@@ -134,6 +139,8 @@ struct actor_def {
     int x;
     int y;
     int side;
+
+    struct item_def *inventory[INVENTORY_SIZE];
 
     char name[MAX_CHAR_NAME_LEN];
     int sex;
@@ -203,9 +210,12 @@ int actor_get_stat(const struct actor_def *actor, int stat_number);
 void actor_die(struct map_def *map, struct actor_def *actor);
 void actor_take_damage(struct map_def *map, struct actor_def *actor, int amount);
 int actor_do_attack(struct map_def *map, struct actor_def *attacker, struct actor_def *victim, struct attack_def *attack);
+int actor_add_item(struct actor_def *actor, struct item_def *new_item);
+int actor_item_qty(struct actor_def *actor, int item_type);
+int actor_remove_items(struct actor_def *actor, int item_type, int to_remove);
 
 const struct item_type* itemtype_get(int ident);
-struct item_def* item_new(int type_ident);
+struct item_def* item_new(int type_ident, int qty);
 void item_destroy(struct item_def *item);
 
 const struct tile_type* tile_get_info(int tt);

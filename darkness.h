@@ -80,6 +80,12 @@
 #define SEX_FEMALE          1
 #define SEX_NEUTER          2
 
+#define ITEM_JUNK           0
+#define ITEM_CONSUME        1
+#define ITEM_ARMOUR         2
+#define ITEM_WEAPON         3
+#define ITEM_TRINKET        4
+
 #define ACTION_STEP_NORTH       0
 #define ACTION_STEP_NORTHEAST   1
 #define ACTION_STEP_EAST        2
@@ -139,6 +145,21 @@ struct actor_def {
     int tick;
 };
 
+struct item_type {
+    int ident;
+    const char *name;
+    int max_stack;
+    int usage;
+    const char *description;
+};
+
+struct item_def {
+    int qty;
+    int type_id;
+
+    const struct item_type *my_type;
+};
+
 struct room_def {
     int x1, y1, x2, y2;
     int type;
@@ -183,6 +204,9 @@ void actor_die(struct map_def *map, struct actor_def *actor);
 void actor_take_damage(struct map_def *map, struct actor_def *actor, int amount);
 int actor_do_attack(struct map_def *map, struct actor_def *attacker, struct actor_def *victim, struct attack_def *attack);
 
+const struct item_type* itemtype_get(int ident);
+struct item_def* item_new(int type_ident);
+void item_destroy(struct item_def *item);
 
 const struct tile_type* tile_get_info(int tt);
 void shift_point(int *x, int *y, int direction);

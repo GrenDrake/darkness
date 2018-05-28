@@ -50,7 +50,8 @@ void draw_log(struct map_def *map) {
     int count = 0;
 
     while (count < max_messages && msg) {
-        if (msg->turn_number == map->turn_number - 1) {
+        if (!msg->was_shown) {
+            msg->was_shown = 1;
             con_setattr(CON_BOLD);
             con_setcolour(CP_GREEN);
         }

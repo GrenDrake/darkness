@@ -106,7 +106,7 @@
 
 struct message_def {
     char *msg;
-    int turn_number;
+    int was_shown;
 
     struct message_def *next;
 };

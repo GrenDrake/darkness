@@ -14,16 +14,6 @@ struct town_def {
 
 int wants_to_quit = 0;
 
-int roster_size(const struct town_def *town) {
-    int size = 0;
-    for (int i = 0; i < MAX_ROSTER_SIZE; ++i) {
-        if (town->roster[i] != NULL) {
-            ++size;
-        }
-    }
-    return size;
-}
-
 void draw_character(int position, const struct actor_def *actor) {
     con_addstr(60, position * 3 + 2, "-= =-  -= =-  -= =-");
     if (!actor) return;

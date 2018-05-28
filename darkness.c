@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <ncurses.h>
-
+#include "console.h"
 #include "darkness.h"
 
 void gameloop();
@@ -12,25 +11,23 @@ void delve_loop(struct dungeon_def *dungeon);
 int wants_to_quit = 0;
 
 void draw_character(int position, const struct actor_def *actor) {
-    mvprintw(position * 3 + 2, 60, "-= =-  -= =-  -= =-");
+    con_addstr(60, position * 3 + 2, "-= =-  -= =-  -= =-");
     if (!actor) return;
-    mvprintw(position * 3, 60, "%d) %s (%s)",
+    con_addstr(60, position * 3, "%d) %s (%s)",
         position + 1,
         actor->name,
         actor->my_class->name);
-    mvprintw(position * 3 + 1, 65, "HP: %d/%d",
+    con_addstr(65, position * 3 + 1, "HP: %d/%d",
         actor_get_stat(actor, STAT_HP),
         actor_get_stat(actor, STAT_MAXHP));
 }
 
 int pick_character() {
-    move(23, 0);
-    clrtoeol();
-    printw("Select character (Z to cancel): ");
+    con_clreol(0, 23);
+    con_addstr(0, 23, "Select character (Z to cancel): ");
 
     while (1) {
-        int key = getch();
-        addch(key);
+        int key = con_getc();
 
         if (key == 'Z') {
             return -1;
@@ -65,22 +62,22 @@ void gameloop() {
     make_dungeons(dungeons);
 
     while (!wants_to_quit) {
-        clear();
-        printw("In town.\nd - Delve\ns - Switch\nQ - Quit");
-        mvprintw(23, 0, "Command: ");
+        con_clear();
+        con_addstr(0, 0, "In town.\nd - Delve\ns - Switch\nQ - Quit");
+        con_addstr(0, 23, "Command: ");
 
         for (int i = 0; i < MAX_ROSTER_SIZE; ++i) {
             draw_character(i, roster[i]);
         }
         for (int i = 0; i < DUNGEON_COUNT; ++i) {
-            mvprintw(i, 25, "%s %d) %s %s %s",
+            con_addstr(25, i, "%s %d) %s %s %s",
                 current_dungeon == i ? "**" : "  ", i + 1,
                 size_names[dungeons[i].size],
                 goal_names[dungeons[i].goal],
                 current_dungeon == i ? "**" : "  ");
         }
 
-        int key = getch();
+        int key = con_getc();
 
         switch (key) {
             case '1':
@@ -135,21 +132,9 @@ void gameloop() {
 
 
 int main() {
-    initscr();
-    noecho();
-    keypad(stdscr, true);
-    cbreak();
-    start_color();
-    init_pair(1, COLOR_RED, COLOR_BLACK);
-    init_pair(2, COLOR_GREEN, COLOR_BLACK);
-    init_pair(3, COLOR_YELLOW, COLOR_BLACK);
-    init_pair(4, COLOR_BLUE, COLOR_BLACK);
-    init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
-    init_pair(6, COLOR_CYAN, COLOR_BLACK);
-    init_pair(7, COLOR_WHITE, COLOR_BLACK);
-    init_pair(CP_DIALOG, COLOR_WHITE, COLOR_BLACK);
+    con_init();
     rng_init_time();
     gameloop();
-    endwin();
+    con_end();
     return 0;
 }

@@ -3,8 +3,6 @@
 
 #include "darkness.h"
 
-#include <ncurses.h>
-
 const int map_sizes[SIZE_COUNT] = {
     16, 32, 48, 64, 80, 96
 };

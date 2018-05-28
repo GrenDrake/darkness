@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <ncurses.h>
-
+#include "console.h"
 #include "darkness.h"
 
 void draw_map(struct map_def *map, int cx, int cy);
@@ -30,20 +29,20 @@ void draw_map(struct map_def *map, int cx, int cy) {
             const struct actor_def *actor = map_get_actor(map, x, y);
 
             if (map_in_view(map, x, y)) {
-                attrset(A_BOLD);
+                con_setattr(CON_BOLD);
                 if (actor) {
-                    attron(COLOR_PAIR(actor->my_class->color));
-                    mvaddch(sy, sx, actor->my_class->glyph);
+                    con_setcolour(actor->my_class->color);
+                    con_addchar(sx, sy, actor->my_class->glyph);
                     continue;
                 }
             } else {
-                attrset(0);
+                con_resetattr(0);
             }
-            attron(COLOR_PAIR(tile->color));
-            mvaddch(sy, sx, tile->glyph);
+            con_setcolour(tile->color);
+            con_addchar(sx, sy, tile->glyph);
         }
     }
-    attrset(0);
+    con_resetattr(0);
 }
 
 void draw_log(struct map_def *map) {
@@ -52,10 +51,11 @@ void draw_log(struct map_def *map) {
 
     while (count < max_messages && msg) {
         if (msg->turn_number == map->turn_number - 1) {
-            attrset(A_BOLD | COLOR_PAIR(CP_GREEN));
+            con_setattr(CON_BOLD);
+            con_setcolour(CP_GREEN);
         }
-        mvprintw(max_y - count - 1, max_x - status_width + 1, "%s", msg->msg);
-        attrset(0);
+        con_addstr(max_x - status_width + 1, max_y - count - 1, "%s", msg->msg);
+        con_resetattr(0);
 
         ++count;
         msg = msg->next;
@@ -64,24 +64,24 @@ void draw_log(struct map_def *map) {
 
 static void draw_player_stats(struct actor_def *player) {
     int left_margin = max_x - status_width + 1;
-    mvprintw(0, left_margin, "%s the %s", player->name, player->my_class->name);
-    mvprintw(2, left_margin, "HP: %d/%d", player->hp, actor_get_stat(player, STAT_MAXHP));
-    mvprintw(3, left_margin, "ACC: %d", actor_get_stat(player, STAT_ACCURACY));
-    mvprintw(3, left_margin + status_width / 2, "DODGE: %d", actor_get_stat(player, STAT_DODGE));
-    mvprintw(4, left_margin, "DAMAGE: %d-%d", actor_get_stat(player, STAT_DAMAGE_MIN), actor_get_stat(player, STAT_DAMAGE_MAX));
-    mvprintw(4, left_margin + status_width / 2, "PROTECTION: %d", actor_get_stat(player, STAT_PROTECTION));
-    mvprintw(5, left_margin, "SPEED: %d", actor_get_stat(player, STAT_SPEED));
-    mvprintw(5, left_margin + status_width / 2, "CRITICAL: %d%%", actor_get_stat(player, STAT_CRITICAL));
+    con_addstr(left_margin, 0, "%s the %s", player->name, player->my_class->name);
+    con_addstr(left_margin, 2, "HP: %d/%d", player->hp, actor_get_stat(player, STAT_MAXHP));
+    con_addstr(left_margin, 3, "ACC: %d", actor_get_stat(player, STAT_ACCURACY));
+    con_addstr(left_margin  + status_width / 2, 3, "DODGE: %d", actor_get_stat(player, STAT_DODGE));
+    con_addstr(left_margin, 4, "DAMAGE: %d-%d", actor_get_stat(player, STAT_DAMAGE_MIN), actor_get_stat(player, STAT_DAMAGE_MAX));
+    con_addstr(left_margin  + status_width / 2, 4, "PROTECTION: %d", actor_get_stat(player, STAT_PROTECTION));
+    con_addstr(left_margin, 5, "SPEED: %d", actor_get_stat(player, STAT_SPEED));
+    con_addstr(left_margin  + status_width / 2, 5, "CRITICAL: %d%%", actor_get_stat(player, STAT_CRITICAL));
 }
 
 static void draw_player_inventory(struct actor_def *player) {
     int left_margin = max_x - status_width + 1;
-    mvprintw(0, left_margin, "%s the %s", player->name, player->my_class->name);
+    con_addstr(left_margin, 0, "%s the %s", player->name, player->my_class->name);
     for (int i = 0; i < INVENTORY_SIZE; ++i) {
         if (player->inventory[i] == NULL) {
-            mvprintw(2 + i, left_margin, "%d) (empty)", i + 1);
+            con_addstr(left_margin, 2 + i, "%d) (empty)", i + 1);
         } else {
-            mvprintw(2 + i, left_margin, "%d) %s (x%d)",
+            con_addstr(left_margin, 2 + i, "%d) %s (x%d)",
                 i + 1,
                 player->inventory[i]->my_type->name,
                 player->inventory[i]->qty);
@@ -174,8 +174,8 @@ void player_action(struct map_def *map, struct actor_def *player, int action) {
 void delve_loop(struct dungeon_def *dungeon) {
     struct map_def *map = map_generate(dungeon);
     if (!map) {
-        printw("COULD NOT ALLOCATE MAP MEMORY");
-        getch();
+        con_addstr(0, 0, "COULD NOT ALLOCATE MAP MEMORY");
+        con_getc();
         return;
     }
     int px = 0, py = 0;
@@ -195,19 +195,20 @@ void delve_loop(struct dungeon_def *dungeon) {
         }
         test_dungeon_complete(dungeon, map);
 
-        getmaxyx(stdscr, max_y, max_x);
-        clear();
+        max_x = con_maxx();
+        max_y = con_maxy();
+        con_clear();
 
         for (int i = 0; i < max_y; ++i) {
-            mvaddch(i, max_x - status_width, ACS_CKBOARD);
+            con_addchar(max_x - status_width, i, con_special(CON_CHAR_CHECKER));
         }
         for (int i = 0; i < max_x / 2; ++i) {
-            mvaddch(max_y - max_messages - 1, max_x - status_width + i, ACS_CKBOARD);
+            con_addchar(max_x - status_width + i, max_y - max_messages - 1, con_special(CON_CHAR_CHECKER));
         }
         if (dungeon->complete) {
-            mvprintw(max_y - max_messages - 1, max_x - status_width + 2, " COMPLETE ");
+            con_addstr(max_x - status_width + 2, max_y - max_messages - 1, " COMPLETE ");
         } else {
-            mvprintw(max_y - max_messages - 1, max_x - status_width + 2, " %s %s ",
+            con_addstr(max_x - status_width + 2, max_y - max_messages - 1, " %s %s ",
                 size_names[dungeon->size],
                 goal_names[dungeon->goal]);
         }
@@ -218,14 +219,13 @@ void delve_loop(struct dungeon_def *dungeon) {
             case 0: draw_player_stats(dungeon->player); break;
             case 1: draw_player_inventory(dungeon->player); break;
         }
-        refresh();
 
         if (map->player->hp <= 0) {
             message_box("You have died...", "");
             return;
         }
 
-        int key = getch();
+        int key = con_getc();
 
         switch (key) {
         // debug related
@@ -246,8 +246,8 @@ void delve_loop(struct dungeon_def *dungeon) {
                 map_dump(map, "map.txt");
                 break;
             case 'R': {
-                int type = getch() - '0';
-                int qty = getch() - '0';
+                int type = con_getc() - '0';
+                int qty = con_getc() - '0';
                 if (qty < 0 || qty > 9) {
                     message_format(map, "DEBUG: Bad item qty %d", qty);
                     break;
@@ -257,13 +257,13 @@ void delve_loop(struct dungeon_def *dungeon) {
                 }
                 break; }
             case 'O': {
-                int type = getch() - '0';
+                int type = con_getc() - '0';
                 int count = actor_item_qty(dungeon->player, type);
                 message_format(map, "DEBUG: holding %d of item type %d", count, type);
                 break; }
             case 'I': {
-                int type = getch() - '0';
-                int qty = getch() - '0';
+                int type = con_getc() - '0';
+                int qty = con_getc() - '0';
                 if (qty < 0 || qty > 9) {
                     message_format(map, "DEBUG: Bad item qty %d", qty);
                     break;
@@ -294,35 +294,30 @@ void delve_loop(struct dungeon_def *dungeon) {
 
         //  movement related
             case ' ':
-            case KEY_B2:
                 player_action(map, dungeon->player, ACTION_WAIT);
                 break;
-            case KEY_HOME:
-            case KEY_A1:
+            case CON_KEY_HOME:
                 player_action(map, dungeon->player, ACTION_STEP_NORTHEAST);
                 break;
-            case KEY_PPAGE:
-            case KEY_A3:
+            case CON_KEY_PAGEUP:
                 player_action(map, dungeon->player, ACTION_STEP_NORTHWEST);
                 break;
-            case KEY_END:
-            case KEY_C1:
+            case CON_KEY_END:
                 player_action(map, dungeon->player, ACTION_STEP_SOUTHEAST);
                 break;
-            case KEY_NPAGE:
-            case KEY_C3:
+            case CON_KEY_PAGEDOWN:
                 player_action(map, dungeon->player, ACTION_STEP_SOUTHWEST);
                 break;
-            case KEY_LEFT:
+            case CON_KEY_LEFT:
                 player_action(map, dungeon->player, ACTION_STEP_EAST);
                 break;
-            case KEY_RIGHT:
+            case CON_KEY_RIGHT:
                 player_action(map, dungeon->player, ACTION_STEP_WEST);
                 break;
-            case KEY_UP:
+            case CON_KEY_UP:
                 player_action(map, dungeon->player, ACTION_STEP_NORTH);
                 break;
-            case KEY_DOWN:
+            case CON_KEY_DOWN:
                 player_action(map, dungeon->player, ACTION_STEP_SOUTH);
                 break;
             case 'W':

@@ -7,6 +7,7 @@
 
 struct town_def {
     struct actor_def *roster[MAX_ROSTER_SIZE];
+    struct dungeon_def dungeons[DUNGEON_COUNT];
 };
 
 int wants_to_quit = 0;
@@ -53,14 +54,13 @@ void make_dungeons(struct dungeon_def *dungeons) {
 
 void town_loop() {
     struct town_def town = { { NULL } };
-    struct dungeon_def dungeons[DUNGEON_COUNT];
     int current_dungeon = 0;
 
     town.roster[0] = actor_new(0);
     town.roster[2] = actor_new(1);
     strcpy(town.roster[0]->name, "Fred");
     strcpy(town.roster[2]->name, "Jane");
-    make_dungeons(dungeons);
+    make_dungeons(town.dungeons);
 
     while (!wants_to_quit) {
         con_clear();
@@ -73,8 +73,8 @@ void town_loop() {
         for (int i = 0; i < DUNGEON_COUNT; ++i) {
             con_addstr(25, i, "%s %d) %s %s %s",
                 current_dungeon == i ? "**" : "  ", i + 1,
-                size_names[dungeons[i].size],
-                goal_names[dungeons[i].goal],
+                size_names[town.dungeons[i].size],
+                goal_names[town.dungeons[i].goal],
                 current_dungeon == i ? "**" : "  ");
         }
 
@@ -94,9 +94,9 @@ void town_loop() {
                 if (town.roster[who] == NULL) {
                     break;
                 }
-                dungeons[current_dungeon].player = town.roster[who];
-                dungeons[current_dungeon].complete = 0;
-                delve_loop(&dungeons[current_dungeon]);
+                town.dungeons[current_dungeon].player = town.roster[who];
+                town.dungeons[current_dungeon].complete = 0;
+                delve_loop(&town.dungeons[current_dungeon]);
                 if (town.roster[who]->hp <= 0) {
                     actor_destroy(town.roster[who]);
                     town.roster[who] = NULL;
@@ -115,7 +115,7 @@ void town_loop() {
                 break; }
 
             case 'N':
-                make_dungeons(dungeons);
+                make_dungeons(town.dungeons);
                 break;
 
             case 'Q':

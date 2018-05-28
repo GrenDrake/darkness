@@ -252,6 +252,9 @@ int rng_roll(int count, int sides);
 int yes_or_no(const char *prompt, const char *line2, int default_answer);
 void message_box(const char *line1, const char *line2);
 
+void town_loop();
+void delve_loop(struct dungeon_def *dungeon);
+
 
 extern int wants_to_quit;
 extern const char *size_names[SIZE_COUNT];

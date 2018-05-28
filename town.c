@@ -45,10 +45,33 @@ int pick_character() {
     return -1;
 }
 
-void make_dungeons(struct dungeon_def *dungeons) {
+void process_new_week(struct town_def *town) {
+
     for (int i = 0; i < DUNGEON_COUNT; ++i) {
-        dungeons[i].size = rng_max(SIZE_COUNT);
-        dungeons[i].goal = rng_max(GOAL_COUNT);
+        if (town->dungeons[i].size != SIZE_NONE) {
+            if (town->dungeons[i].complete || rng_max(100) >= 20) {
+                town->dungeons[i].size = SIZE_NONE;
+            }
+        }
+
+        if (town->dungeons[i].size == SIZE_NONE) {
+            town->dungeons[i].complete = 0;
+            town->dungeons[i].size = 1 + rng_max(SIZE_COUNT);
+            town->dungeons[i].goal = rng_max(GOAL_COUNT);
+        }
+    }
+
+    for (int i = 0; i < MAX_ROSTER_SIZE; ++i) {
+        if (town->roster[i] == NULL) {
+            continue;
+        }
+
+        int max_hp = actor_get_stat(town->roster[i], STAT_MAXHP);
+        int hp_inc = max_hp / 5;
+        town->roster[i]->hp += hp_inc;
+        if (town->roster[i]->hp > max_hp) {
+            town->roster[i]->hp = max_hp;
+        }
     }
 }
 
@@ -60,7 +83,7 @@ void town_loop() {
     town.roster[2] = actor_new(1);
     strcpy(town.roster[0]->name, "Fred");
     strcpy(town.roster[2]->name, "Jane");
-    make_dungeons(town.dungeons);
+    process_new_week(&town);
 
     while (!wants_to_quit) {
         con_clear();
@@ -73,7 +96,7 @@ void town_loop() {
         for (int i = 0; i < DUNGEON_COUNT; ++i) {
             con_addstr(25, i, "%s %d) %s %s %s",
                 current_dungeon == i ? "**" : "  ", i + 1,
-                size_names[town.dungeons[i].size],
+                size_names[town.dungeons[i].size - 1],
                 goal_names[town.dungeons[i].goal],
                 current_dungeon == i ? "**" : "  ");
         }
@@ -101,6 +124,7 @@ void town_loop() {
                     actor_destroy(town.roster[who]);
                     town.roster[who] = NULL;
                 }
+                process_new_week(&town);
                 break; }
 
             case 's': {
@@ -115,7 +139,7 @@ void town_loop() {
                 break; }
 
             case 'N':
-                make_dungeons(town.dungeons);
+                process_new_week(&town);
                 break;
 
             case 'Q':

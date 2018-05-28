@@ -62,12 +62,13 @@
 
 #define DUNGEON_COUNT       5
 
-#define SIZE_TINY           0
-#define SIZE_SMALL          1
-#define SIZE_AVERAGE        2
-#define SIZE_LARGE          3
-#define SIZE_HUGE           4
-#define SIZE_EXCESSIVE      5
+#define SIZE_NONE           0
+#define SIZE_TINY           1
+#define SIZE_SMALL          2
+#define SIZE_AVERAGE        3
+#define SIZE_LARGE          4
+#define SIZE_HUGE           5
+#define SIZE_EXCESSIVE      6
 #define SIZE_COUNT          6
 
 #define GOAL_EXPLORE        0

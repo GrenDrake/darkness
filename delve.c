@@ -210,7 +210,7 @@ void delve_loop(struct dungeon_def *dungeon) {
             con_addstr(max_x - status_width + 2, max_y - max_messages - 1, " COMPLETE ");
         } else {
             con_addstr(max_x - status_width + 2, max_y - max_messages - 1, " %s %s ",
-                size_names[dungeon->size],
+                size_names[dungeon->size - 1],
                 goal_names[dungeon->goal]);
         }
 

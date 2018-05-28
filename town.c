@@ -68,12 +68,17 @@ int pick_character(const char *prompt) {
     return -1;
 }
 
-#define NAME_COUNT  10
+#define NAME_COUNT  24
 const char *male_names[NAME_COUNT] = {
-    "Alan", "Bob", "Charlie", "David", "Evan", "Fred", "George", "Hal", "Ivan", "Joe"
+    "Alan", "Bob", "Charlie", "David", "Evan", "Fred", "George", "Herbert",
+    "Ivan", "Joe", "Keith", "Lache", "Maxwell", "Nathan", "Olaf", "Phillip",
+    "Quentin", "Robert", "Sam", "Timothy", "Vladimir", "Wesley", "Xavier", "Zachary"
 };
 const char *female_names[NAME_COUNT] = {
-    "Abby", "Bev", "Claudia", "Dana", "Emily", "Francis", "Grace", "Heather", "Isabella", "Jane"
+    "Abby", "Bev", "Claudia", "Dana", "Emily", "Francis", "Grace", "Heather",
+    "Isabella", "Jane", "Kayla", "Laura", "Maria", "Natalie", "Olivia",
+    "Penelope", "Quinn", "Rachel", "Samantha", "Ttiana", "Violet", "Willow",
+    "Yvonne", "Zelda"
 };
 
 struct actor_def* generate_character() {

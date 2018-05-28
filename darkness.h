@@ -83,6 +83,15 @@
 #define SEX_FEMALE          1
 #define SEX_NEUTER          2
 
+#define AF_MALE             0x0001
+#define AF_FEMALE           0x0002
+#define AF_NEUTER           0x0004
+#define AF_BEAST            0x0008
+#define AF_WINGS            0x0030
+#define AF_BACKWINGS        0x0010
+#define AF_WINGARMS         0x0020
+#define AF_TAIL             0x0040
+
 #define ITEM_ARMOUR         0
 #define ITEM_WEAPON         1
 #define ITEM_TRINKET        2
@@ -125,6 +134,7 @@ struct class_def {
     const char *name;
     int glyph;
     int color;
+    unsigned flags;
     const struct attack_def *attacks[MAX_CLASS_ATTACKS];
     int base_stats[STAT_COUNT];
     const char *description;

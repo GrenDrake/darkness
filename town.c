@@ -72,12 +72,31 @@ const char *female_names[NAME_COUNT] = {
 };
 
 struct actor_def* generate_character() {
-    struct actor_def *actor = actor_new(rng_max(2));
+    struct actor_def *actor = actor_new(rng_max(8));
     if (actor == NULL) return actor;
 
-    actor->sex = rng_max(2);
+    if (actor->my_class->flags & AF_MALE) {
+        actor->sex = SEX_MALE;
+    } else if (actor->my_class->flags & AF_FEMALE) {
+        actor->sex = SEX_FEMALE;
+    } else if (actor->my_class->flags & AF_NEUTER) {
+        actor->sex = SEX_NEUTER;
+    } else {
+        actor->sex = rng_max(2);
+    }
+
     int name_number = rng_max(NAME_COUNT);
-    strcpy(actor->name, actor->sex == SEX_MALE ? male_names[name_number] : female_names[name_number]);
+    switch(actor->sex) {
+        case SEX_MALE:
+            strcpy(actor->name, male_names[name_number]);
+            break;
+        case SEX_FEMALE:
+            strcpy(actor->name, female_names[name_number]);
+            break;
+        case SEX_NEUTER:
+            strcpy(actor->name, rng_max(2) ? male_names[name_number] : female_names[name_number]);
+            break;
+    }
     return actor;
 }
 

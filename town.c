@@ -56,6 +56,24 @@ int pick_character(const char *prompt) {
     return -1;
 }
 
+#define NAME_COUNT  10
+const char *male_names[NAME_COUNT] = {
+    "Alan", "Bob", "Charlie", "David", "Evan", "Fred", "George", "Hal", "Ivan", "Joe"
+};
+const char *female_names[NAME_COUNT] = {
+    "Abby", "Bev", "Claudia", "Dana", "Emily", "Francis", "Grace", "Heather", "Isabella", "Jane"
+};
+
+struct actor_def* generate_character() {
+    struct actor_def *actor = actor_new(rng_max(2));
+    if (actor == NULL) return actor;
+
+    actor->sex = rng_max(2);
+    int name_number = rng_max(NAME_COUNT);
+    strcpy(actor->name, actor->sex == SEX_MALE ? male_names[name_number] : female_names[name_number]);
+    return actor;
+}
+
 void process_new_week(struct town_def *town) {
 
     for (int i = 0; i < DUNGEON_COUNT; ++i) {
@@ -157,9 +175,9 @@ void town_loop() {
     int current_dungeon = 0;
 
     town.roster[0] = actor_new(0);
-    town.roster[2] = actor_new(1);
-    strcpy(town.roster[0]->name, "Fred");
-    strcpy(town.roster[2]->name, "Jane");
+    town.roster[0]->sex = SEX_MALE;
+    strcpy(town.roster[0]->name, male_names[rng_max(NAME_COUNT)]);
+    town.roster[1] = generate_character();
     process_new_week(&town);
 
     while (!wants_to_quit) {

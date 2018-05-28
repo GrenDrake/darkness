@@ -18,6 +18,7 @@
 #define SIDE_ENEMY          1
 #define PARTY_SIZE          4
 #define MAX_ROSTER_SIZE     8
+#define MAX_HIREABLES       3
 #define MAX_CLASS_ATTACKS   8
 #define MAX_CHAR_NAME_LEN   32
 #define INVENTORY_SIZE      10

@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,6 +8,7 @@
 
 struct town_def {
     struct actor_def *roster[MAX_ROSTER_SIZE];
+    struct actor_def *hireable[MAX_HIREABLES];
     struct dungeon_def dungeons[DUNGEON_COUNT];
 };
 
@@ -46,12 +48,22 @@ int pick_character(const char *prompt) {
             return -1;
         }
 
-        key -= '1';
-        if (key < 0 || key >= MAX_ROSTER_SIZE) {
-            continue;
+        if (key >= '0' && key <= '9') {
+            key -= '1';
+            if (key < 0 || key >= MAX_ROSTER_SIZE) {
+                continue;
+            }
+            return key;
         }
 
-        return key;
+        key = tolower(key);
+        if (key >= 'a' && key < 'a' + MAX_HIREABLES) {
+            key -= 'a';
+            if (key < 0 || key >= MAX_HIREABLES) {
+                continue;
+            }
+            return key - 20;
+        }
     }
     return -1;
 }
@@ -102,17 +114,34 @@ void process_new_week(struct town_def *town) {
             town->roster[i]->hp = max_hp;
         }
     }
+
+    for (int i = 0; i < MAX_HIREABLES; ++i) {
+        if (town->hireable[i]) {
+            actor_destroy(town->hireable[i]);
+        }
+
+        town->hireable[i] = generate_character();
+    }
 }
 
 
 void roster_loop(struct town_def *town) {
     while (1) {
-        int roster_count = roster_size(town);
+        int roster_count = 0;
+        int hireable_count = 0;
+        int empty_ranks = 0;
+        int first_empty = -1;
 
         con_clear();
         for (int i = 0; i < MAX_ROSTER_SIZE; ++i) {
             struct actor_def *actor = town->roster[i];
-            if (!actor) continue;
+            if (!actor) {
+                if (first_empty < 0) {
+                    first_empty = i;
+                }
+                ++empty_ranks;
+                continue;
+            }
 
             con_addstr(0, i, "%d) %s (%s)",
                 i + 1,
@@ -121,9 +150,26 @@ void roster_loop(struct town_def *town) {
             con_addstr(20, i, "HP: %d/%d",
                 actor_get_stat(actor, STAT_HP),
                 actor_get_stat(actor, STAT_MAXHP));
+            ++roster_count;
         }
 
-        con_addstr(0, 17, "h) Hire character");
+        for (int i = 0; i < MAX_HIREABLES; ++i) {
+            struct actor_def *actor = town->hireable[i];
+            if (!actor) continue;
+
+            con_addstr(40, i, "%c) %s (%s)",
+                i + 'A',
+                actor->name,
+                actor->my_class->name);
+            con_addstr(60, i, "HP: %d/%d",
+                actor_get_stat(actor, STAT_HP),
+                actor_get_stat(actor, STAT_MAXHP));
+            ++hireable_count;
+        }
+
+        if (hireable_count > 0 && empty_ranks > 0) {
+            con_addstr(0, 17, "h) Hire character");
+        }
         if (roster_count > 1) {
             con_addstr(0, 18, "d) Dismiss character");
         }
@@ -133,10 +179,20 @@ void roster_loop(struct town_def *town) {
         int key = con_getc();
 
         switch(key) {
+            case 'h': {
+                if (hireable_count <= 0 || empty_ranks <= 0) break;
+                int who = pick_character("Character to hire");
+                if (who >= -1) break;
+                who += 20;
+                if (town->hireable[who] == NULL) break;
+
+                town->roster[first_empty] = town->hireable[who];
+                town->hireable[who] = NULL;
+                break; }
             case 'd': {
                 if (roster_count <= 1) break;
                 int first = pick_character("Pick character to dismiss");
-                if (first == -1) break;
+                if (first <= -1) break;
                 if (town->roster[first] == NULL) break;
                 if (yes_or_no("Are you sure you to dismiss this character?", actor_get_name(town->roster[first]), ANSWER_NO) == ANSWER_NO) {
                     break;
@@ -147,9 +203,9 @@ void roster_loop(struct town_def *town) {
 
             case 's': {
                 int first = pick_character("Pick first character");
-                if (first == -1) break;
+                if (first <= -1) break;
                 int second = pick_character("Pick second character");
-                if (second == -1) break;
+                if (second <= -1) break;
 
                 struct actor_def *tmp = town->roster[first];
                 town->roster[first] = town->roster[second];
@@ -212,7 +268,7 @@ void town_loop() {
 
             case 'd': {
                 int who = pick_character("Pick character to delve");
-                if (town.roster[who] == NULL) {
+                if (who < 0 || town.roster[who] == NULL) {
                     break;
                 }
                 town.dungeons[current_dungeon].player = town.roster[who];
@@ -240,6 +296,9 @@ void town_loop() {
                 wants_to_quit = 1;
                 for (int i = 0; i < MAX_ROSTER_SIZE; ++i) {
                     free(town.roster[i]);
+                }
+                for (int i = 0; i < MAX_HIREABLES; ++i) {
+                    free(town.hireable[i]);
                 }
                 return;
         }

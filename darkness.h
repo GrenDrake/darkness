@@ -102,6 +102,7 @@
 #define ACTION_WAIT             8
 #define ACTION_BASIC_ATTACK     9
 #define TICK_MOVE               10
+#define TICK_ATTACK             15
 
 struct message_def {
     char *msg;

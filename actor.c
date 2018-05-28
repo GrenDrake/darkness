@@ -30,18 +30,17 @@ const struct class_def* class_get(int ident) {
 }
 
 void actor_generic_ai(struct map_def *map, struct actor_def *actor) {
+    ++actor->tick;
     if (point_next_to(actor->x, actor->y, map->player->x, map->player->y)) {
         actor_do_attack(map, actor, map->player, NULL);
-        actor->tick += 3;
+        actor->tick += TICK_ATTACK;
     } else if (map_in_view(map, actor->x, actor->y)) {
         int dir = direction_between(actor->x, actor->y, map->player->x, map->player->y);
         if (dir != DIR_NONE) {
             actor_action_step(map, actor, dir);
         }
-        actor->tick += 3;
     } else {
         actor_action_step(map, actor, rng_max(DIR_COUNT));
-        actor->tick += 3;
     }
 }
 

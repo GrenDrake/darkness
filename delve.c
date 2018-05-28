@@ -152,7 +152,7 @@ void player_action(struct map_def *map, struct actor_def *player, int action) {
                 struct actor_def *who = map_get_actor(map, x, y);
                 if (who) {
                     actor_do_attack(map, player, who, NULL);
-                    player->tick += TICK_MOVE;
+                    player->tick += TICK_ATTACK;
                     success = 1;
                 }
             } else {

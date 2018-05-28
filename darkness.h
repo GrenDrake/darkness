@@ -209,6 +209,7 @@ struct actor_def* actor_new(int class_ident);
 void actor_destroy(struct actor_def *actor);
 int actor_action_step(struct map_def *map, struct actor_def *actor, int direction);
 int actor_get_stat(const struct actor_def *actor, int stat_number);
+const char* actor_get_name(const struct actor_def *actor);
 void actor_die(struct map_def *map, struct actor_def *actor);
 void actor_take_damage(struct map_def *map, struct actor_def *actor, int amount);
 int actor_do_attack(struct map_def *map, struct actor_def *attacker, struct actor_def *victim, struct attack_def *attack);

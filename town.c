@@ -12,6 +12,16 @@ struct town_def {
 
 int wants_to_quit = 0;
 
+int roster_size(const struct town_def *town) {
+    int size = 0;
+    for (int i = 0; i < MAX_ROSTER_SIZE; ++i) {
+        if (town->roster[i] != NULL) {
+            ++size;
+        }
+    }
+    return size;
+}
+
 void draw_character(int position, const struct actor_def *actor) {
     con_addstr(60, position * 3 + 2, "-= =-  -= =-  -= =-");
     if (!actor) return;
@@ -24,9 +34,10 @@ void draw_character(int position, const struct actor_def *actor) {
         actor_get_stat(actor, STAT_MAXHP));
 }
 
-int pick_character() {
+int pick_character(const char *prompt) {
     con_clreol(0, 23);
-    con_addstr(0, 23, "Select character (Z to cancel): ");
+    con_addstr(0, 23, prompt);
+    con_addstr(strlen(prompt) + 1, 23, "(Z to cancel): ");
 
     while (1) {
         int key = con_getc();
@@ -75,6 +86,72 @@ void process_new_week(struct town_def *town) {
     }
 }
 
+
+void roster_loop(struct town_def *town) {
+    while (1) {
+        int roster_count = roster_size(town);
+
+        con_clear();
+        for (int i = 0; i < MAX_ROSTER_SIZE; ++i) {
+            struct actor_def *actor = town->roster[i];
+            if (!actor) continue;
+
+            con_addstr(0, i, "%d) %s (%s)",
+                i + 1,
+                actor->name,
+                actor->my_class->name);
+            con_addstr(20, i, "HP: %d/%d",
+                actor_get_stat(actor, STAT_HP),
+                actor_get_stat(actor, STAT_MAXHP));
+        }
+
+        con_addstr(0, 17, "h) Hire character");
+        if (roster_count > 1) {
+            con_addstr(0, 18, "d) Dismiss character");
+        }
+        con_addstr(0, 19, "s) Switch characters");
+        con_addstr(0, 20, "z) Return");
+        con_addstr(0, 21, "Q) Quit game");
+        int key = con_getc();
+
+        switch(key) {
+            case 'd': {
+                if (roster_count <= 1) break;
+                int first = pick_character("Pick character to dismiss");
+                if (first == -1) break;
+                if (town->roster[first] == NULL) break;
+                if (yes_or_no("Are you sure you to dismiss this character?", actor_get_name(town->roster[first]), ANSWER_NO) == ANSWER_NO) {
+                    break;
+                }
+                actor_destroy(town->roster[first]);
+                town->roster[first] = NULL;
+                break; }
+
+            case 's': {
+                int first = pick_character("Pick first character");
+                if (first == -1) break;
+                int second = pick_character("Pick second character");
+                if (second == -1) break;
+
+                struct actor_def *tmp = town->roster[first];
+                town->roster[first] = town->roster[second];
+                town->roster[second] = tmp;
+                break; }
+
+            case 'Q':
+                if (yes_or_no("Are you sure you want to quit?", "", ANSWER_NO) == ANSWER_NO) {
+                    break;
+                }
+                wants_to_quit = 1;
+                return;
+            case 'z':
+            case 'Z':
+                return;
+        }
+    }
+}
+
+
 void town_loop() {
     struct town_def town = { { NULL } };
     int current_dungeon = 0;
@@ -87,7 +164,10 @@ void town_loop() {
 
     while (!wants_to_quit) {
         con_clear();
-        con_addstr(0, 0, "In town.\nd - Delve\ns - Switch\nQ - Quit");
+        con_addstr(0, 0, "In town.");
+        con_addstr(0, 1, "d - Delve");
+        con_addstr(0, 2, "r - Roster");
+        con_addstr(0, 3, "Q - Quit");
         con_addstr(0, 23, "Command: ");
 
         for (int i = 0; i < MAX_ROSTER_SIZE; ++i) {
@@ -113,7 +193,7 @@ void town_loop() {
                 break;
 
             case 'd': {
-                int who = pick_character();
+                int who = pick_character("Pick character to delve");
                 if (town.roster[who] == NULL) {
                     break;
                 }
@@ -127,16 +207,9 @@ void town_loop() {
                 process_new_week(&town);
                 break; }
 
-            case 's': {
-                int first = pick_character();
-                if (first == -1) break;
-                int second = pick_character();
-                if (second == -1) break;
-
-                struct actor_def *tmp = town.roster[first];
-                town.roster[first] = town.roster[second];
-                town.roster[second] = tmp;
-                break; }
+            case 'r':
+                roster_loop(&town);
+                break;
 
             case 'N':
                 process_new_week(&town);

@@ -5,6 +5,10 @@
 #include "console.h"
 #include "darkness.h"
 
+struct town_def {
+    struct actor_def *roster[MAX_ROSTER_SIZE];
+};
+
 int wants_to_quit = 0;
 
 void draw_character(int position, const struct actor_def *actor) {
@@ -48,14 +52,14 @@ void make_dungeons(struct dungeon_def *dungeons) {
 }
 
 void town_loop() {
-    struct actor_def *roster[MAX_ROSTER_SIZE] = { NULL };
+    struct town_def town = { { NULL } };
     struct dungeon_def dungeons[DUNGEON_COUNT];
     int current_dungeon = 0;
 
-    roster[0] = actor_new(0);
-    roster[2] = actor_new(1);
-    strcpy(roster[0]->name, "Fred");
-    strcpy(roster[2]->name, "Jane");
+    town.roster[0] = actor_new(0);
+    town.roster[2] = actor_new(1);
+    strcpy(town.roster[0]->name, "Fred");
+    strcpy(town.roster[2]->name, "Jane");
     make_dungeons(dungeons);
 
     while (!wants_to_quit) {
@@ -64,7 +68,7 @@ void town_loop() {
         con_addstr(0, 23, "Command: ");
 
         for (int i = 0; i < MAX_ROSTER_SIZE; ++i) {
-            draw_character(i, roster[i]);
+            draw_character(i, town.roster[i]);
         }
         for (int i = 0; i < DUNGEON_COUNT; ++i) {
             con_addstr(25, i, "%s %d) %s %s %s",
@@ -87,15 +91,15 @@ void town_loop() {
 
             case 'd': {
                 int who = pick_character();
-                if (roster[who] == NULL) {
+                if (town.roster[who] == NULL) {
                     break;
                 }
-                dungeons[current_dungeon].player = roster[who];
+                dungeons[current_dungeon].player = town.roster[who];
                 dungeons[current_dungeon].complete = 0;
                 delve_loop(&dungeons[current_dungeon]);
-                if (roster[who]->hp <= 0) {
-                    actor_destroy(roster[who]);
-                    roster[who] = NULL;
+                if (town.roster[who]->hp <= 0) {
+                    actor_destroy(town.roster[who]);
+                    town.roster[who] = NULL;
                 }
                 break; }
 
@@ -105,9 +109,9 @@ void town_loop() {
                 int second = pick_character();
                 if (second == -1) break;
 
-                struct actor_def *tmp = roster[first];
-                roster[first] = roster[second];
-                roster[second] = tmp;
+                struct actor_def *tmp = town.roster[first];
+                town.roster[first] = town.roster[second];
+                town.roster[second] = tmp;
                 break; }
 
             case 'N':
@@ -120,7 +124,7 @@ void town_loop() {
                 }
                 wants_to_quit = 1;
                 for (int i = 0; i < MAX_ROSTER_SIZE; ++i) {
-                    free(roster[i]);
+                    free(town.roster[i]);
                 }
                 return;
         }

@@ -115,6 +115,9 @@
 #define TICK_MOVE               10
 #define TICK_ATTACK             15
 
+#define SIDE_PLAYER             0
+#define SIDE_MONSTER            1
+
 struct message_def {
     char *msg;
     int was_shown;

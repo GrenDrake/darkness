@@ -223,7 +223,7 @@ struct map_def* map_generate(struct dungeon_def *dungeon) {
 
                 struct actor_def *new_actor = actor_new(type);
                 if (!new_actor) continue;
-                new_actor->side = 1;
+                new_actor->side = SIDE_MONSTER;
                 new_actor->tick = 1;
                 map_set_actor(map, x, y, new_actor);
             }

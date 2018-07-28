@@ -32,7 +32,11 @@ void draw_map(struct map_def *map, int cx, int cy) {
                 con_setattr(CON_BOLD);
                 if (actor) {
                     con_setcolour(actor->my_class->color);
-                    con_addchar(sx, sy, actor->my_class->glyph);
+                    if (actor->side == SIDE_PLAYER) {
+                        con_addchar(sx, sy, '@');
+                    } else {
+                        con_addchar(sx, sy, actor->my_class->glyph);
+                    }
                     continue;
                 }
             } else {

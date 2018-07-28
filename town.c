@@ -74,6 +74,7 @@ const char *female_names[NAME_COUNT] = {
 struct actor_def* generate_character() {
     struct actor_def *actor = actor_new(rng_max(8));
     if (actor == NULL) return actor;
+    actor->side = SIDE_PLAYER;
 
     if (actor->my_class->flags & AF_MALE) {
         actor->sex = SEX_MALE;

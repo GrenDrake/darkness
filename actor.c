@@ -11,16 +11,16 @@
 // STATS:  HP ACC DODG DAM_MIN DAM_MAX PROT SPD CRIT
 
 const struct class_def classes[] = {
-    { 0,   "gargoyle", '@', CP_GREEN, AF_BACKWINGS|AF_TAIL,             { 0 }, { 100, 75, 5,  15, 25, 10, 5, 15 }, "A warrior trained in the service of armies." },
-    { 1,   "ratling",  '@', CP_GREEN, AF_TAIL,                          { 0 }, { 90,  65, 10, 10, 15, 0,  5, 10 }, "A battlefield medic, trained during the last war." },
-    { 2,   "werewolf", '@', CP_GREEN, AF_TAIL,                          { 0 }, { 90,  65, 10, 10, 15, 0,  5, 10 }, "A battlefield medic, trained during the last war." },
-    { 3,   "vampire",  '@', CP_GREEN, 0,                                { 0 }, { 90,  65, 10, 10, 15, 0,  5, 10 }, "A battlefield medic, trained during the last war." },
-    { 4,   "ghoul",    '@', CP_GREEN, 0,                                { 0 }, { 90,  65, 10, 10, 15, 0,  5, 10 }, "A battlefield medic, trained during the last war." },
-    { 5,   "dragon",   '@', CP_GREEN, AF_BEAST|AF_TAIL,                 { 0 }, { 90,  65, 10, 10, 15, 0,  5, 10 }, "A battlefield medic, trained during the last war." },
-    { 6,   "gryphon",  '@', CP_GREEN, AF_BEAST|AF_BACKWINGS|AF_TAIL,    { 0 }, { 90,  65, 10, 10, 15, 0,  5, 10 }, "A battlefield medic, trained during the last war." },
-    { 7,   "harpy",    '@', CP_GREEN, AF_WINGARMS,                      { 0 }, { 90,  65, 10, 10, 15, 0,  5, 10 }, "A battlefield medic, trained during the last war." },
-    { 100, "zombie",   'g', CP_RED,   0,                                { 0 }, { 50,  55, 10, 8,  16, 0,  5, 5  }, "A short, malicious creature related to orcs." },
-    { 101, "skeleton", 'o', CP_RED,   0,                                { 0 }, { 70,  65, 5,  12, 20, 50, 5, 10 }, "A powerful, bestial warrior." },
+    { 0,   "gargoyle", 'g', CP_GREEN, AF_BACKWINGS|AF_TAIL,             { 0 }, { 100, 75, 5,  15, 25, 10, 5, 15 }, "A warrior trained in the service of armies." },
+    { 1,   "ratling",  'r', CP_GREEN, AF_TAIL,                          { 0 }, { 90,  65, 10, 10, 15, 0,  5, 10 }, "A battlefield medic, trained during the last war." },
+    { 2,   "werewolf", 'w', CP_GREEN, AF_TAIL,                          { 0 }, { 90,  65, 10, 10, 15, 0,  5, 10 }, "A battlefield medic, trained during the last war." },
+    { 3,   "vampire",  'v', CP_GREEN, 0,                                { 0 }, { 90,  65, 10, 10, 15, 0,  5, 10 }, "A battlefield medic, trained during the last war." },
+    { 4,   "ghoul",    'g', CP_GREEN, 0,                                { 0 }, { 90,  65, 10, 10, 15, 0,  5, 10 }, "A battlefield medic, trained during the last war." },
+    { 5,   "dragon",   'd', CP_GREEN, AF_BEAST|AF_TAIL,                 { 0 }, { 90,  65, 10, 10, 15, 0,  5, 10 }, "A battlefield medic, trained during the last war." },
+    { 6,   "gryphon",  'g', CP_GREEN, AF_BEAST|AF_BACKWINGS|AF_TAIL,    { 0 }, { 90,  65, 10, 10, 15, 0,  5, 10 }, "A battlefield medic, trained during the last war." },
+    { 7,   "harpy",    'h', CP_GREEN, AF_WINGARMS,                      { 0 }, { 90,  65, 10, 10, 15, 0,  5, 10 }, "A battlefield medic, trained during the last war." },
+    { 100, "zombie",   'z', CP_RED,   0,                                { 0 }, { 25,  27, 10, 4,  8, 0,  5, 5  }, "A short, malicious creature related to orcs." },
+    { 101, "skeleton", 's', CP_RED,   0,                                { 0 }, { 35,  32, 5,  3, 5, 50, 5, 10 }, "A powerful, bestial warrior." },
     { -1, NULL },
 };
 
